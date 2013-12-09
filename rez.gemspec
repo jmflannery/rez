@@ -13,11 +13,12 @@ Gem::Specification.new do |s|
   s.summary     = "TODO: Summary of Rez."
   s.description = "TODO: Description of Rez."
 
-  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "rails", "~> 4.0.2"
 
   s.add_development_dependency "pg"
   s.add_development_dependency "minitest-rails", "~> 0.9.2"
+  s.add_development_dependency "active_model_serializers", "~> 0.8.1"
 end
