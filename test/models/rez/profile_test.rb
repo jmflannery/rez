@@ -1,9 +1,6 @@
 require 'test_helper'
 
 module Rez
-  class ProfileTest < ActiveSupport::TestCase
-    # test "the truth" do
-    #   assert true
-    # end
+  describe Profile do
   end
 end
