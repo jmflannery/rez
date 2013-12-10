@@ -12,7 +12,8 @@ module Rez
         lastname: 'Savage',
         nickname: 'Macho Man',
         prefix: 'Sir',
-        suffix: 'II'
+        suffix: 'II',
+        title: 'Real Wrestler'
       }}
 
       it "returns HTTP created 201" do

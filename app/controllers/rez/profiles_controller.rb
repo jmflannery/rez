@@ -9,7 +9,7 @@ module Rez
     private
 
     def profile_params
-      params.require(:profile).permit(:firstname, :middlename, :lastname, :nickname, :prefix, :suffix)
+      params.require(:profile).permit(:firstname, :middlename, :lastname, :nickname, :prefix, :suffix, :title)
     end
   end
 end
