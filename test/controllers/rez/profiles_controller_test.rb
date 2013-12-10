@@ -6,29 +6,21 @@ module Rez
 
     describe "POST create" do
 
-      let(:valid_attrs) {{
-        firstname: 'Randy',
-        middlename: 'Mario',
-        lastname: 'Savage',
-        nickname: 'Macho Man',
-        prefix: 'Sir',
-        suffix: 'II',
-        title: 'Real Wrestler'
-      }}
+      let(:profile_attrs) { FactoryGirl.attributes_for(:profile) }
 
       it "returns HTTP created 201" do
-        post :create, profile: valid_attrs, use_route: 'rez'
+        post :create, profile: profile_attrs, use_route: 'rez'
         response.status.must_equal 201
       end
     
       it "creates a Profile" do
         assert_difference('Profile.count') do
-          post :create, profile: valid_attrs, use_route: 'rez'
+          post :create, profile: profile_attrs, use_route: 'rez'
         end
       end
 
       it "returns the Profile as json" do
-        post :create, profile: valid_attrs, use_route: 'rez'
+        post :create, profile: profile_attrs, use_route: 'rez'
         response.body.must_equal(ProfileSerializer.new(assigns(:profile)).to_json)
       end
     end
