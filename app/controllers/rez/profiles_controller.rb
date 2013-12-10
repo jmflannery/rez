@@ -16,6 +16,12 @@ module Rez
       render json: @profiles
     end
 
+    def update
+      @profile = Profile.find(params[:id])
+      @profile.update_attributes(profile_params)
+      render json: @profile
+    end
+
     private
 
     def profile_params

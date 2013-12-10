@@ -50,5 +50,33 @@ module Rez
         response.body.must_equal({ profiles: serializer }.to_json)
       end
     end
+
+    describe 'PUT update' do
+
+      let(:profile) {
+        FactoryGirl.create(:profile,
+          firstname: 'William',
+          middlename: 'Jefferson',
+          lastname: 'Stump',
+          nickname: 'Billy',
+          prefix: 'Sir',
+          suffix: 'Esq',
+          title: 'Train Master, Extraordinaire'
+      )}
+      let(:update_attrs) {{ firstname: 'Bill', middlename: '', title: 'Sr Train Master' }}
+
+      it "updates the profile record" do
+        put :update, id: profile, profile: update_attrs, use_route: 'rez'
+        profile.reload.firstname.must_equal('Bill')
+        profile.middlename.must_equal('')
+        profile.title.must_equal('Sr Train Master')
+        profile.prefix.must_equal('Sir')
+      end
+
+      it "returns the updated profile in JSON format" do
+        put :update, id: profile, profile: update_attrs, use_route: 'rez'
+        response.body.must_equal(ProfileSerializer.new(profile.reload).to_json)
+      end
+    end
   end
 end
