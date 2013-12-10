@@ -6,6 +6,11 @@ module Rez
       render json: @profile, status: 201
     end
 
+    def show
+      @profile = Profile.find(params[:id])
+      render json: @profile
+    end
+
     private
 
     def profile_params

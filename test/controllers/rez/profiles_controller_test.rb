@@ -24,5 +24,15 @@ module Rez
         response.body.must_equal(ProfileSerializer.new(assigns(:profile)).to_json)
       end
     end
+
+    describe "GET show" do
+
+      let(:profile) { FactoryGirl.create(:profile) }
+
+      it "gets the requested profile as JSON" do
+        get :show, id: profile, use_route: 'rez'
+        response.body.must_equal(ProfileSerializer.new(profile).to_json)
+      end
+    end
   end
 end
