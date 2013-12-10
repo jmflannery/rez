@@ -26,6 +26,11 @@ module Rez
           post :create, profile: valid_attrs, use_route: 'rez'
         end
       end
+
+      it "returns the Profile as json" do
+        post :create, profile: valid_attrs, use_route: 'rez'
+        response.body.must_equal(ProfileSerializer.new(assigns(:profile)).to_json)
+      end
     end
   end
 end
