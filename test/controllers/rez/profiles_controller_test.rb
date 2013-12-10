@@ -34,5 +34,21 @@ module Rez
         response.body.must_equal(ProfileSerializer.new(profile).to_json)
       end
     end
+
+    describe "GET index" do
+
+      let(:p1) { FactoryGirl.create(:profile) }
+      let(:p2) { FactoryGirl.create(:profile) }
+
+      before do
+        @profiles = [p1, p2]
+      end
+
+      it "gets all the profiles in JSON format" do
+        get :index, use_route: 'rez'
+        serializer = ActiveModel::ArraySerializer.new(@profiles, each_serializer: ProfileSerializer)
+        response.body.must_equal({ profiles: serializer }.to_json)
+      end
+    end
   end
 end

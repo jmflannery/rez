@@ -11,6 +11,11 @@ module Rez
       render json: @profile
     end
 
+    def index
+      @profiles = Profile.all
+      render json: @profiles
+    end
+
     private
 
     def profile_params
