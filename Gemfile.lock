@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     rez (0.0.1)
+      active_model_serializers (~> 0.8.1)
       rails (~> 4.0.2)
 
 GEM
@@ -89,7 +90,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  active_model_serializers (~> 0.8.1)
   minitest-rails (~> 0.9.2)
   pg
   rez!
