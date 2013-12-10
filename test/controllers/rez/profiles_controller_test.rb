@@ -14,7 +14,7 @@ module Rez
       end
     
       it "creates a Profile" do
-        assert_difference('Profile.count') do
+        assert_difference('Profile.count', 1) do
           post :create, profile: profile_attrs, use_route: 'rez'
         end
       end
@@ -76,6 +76,23 @@ module Rez
       it "returns the updated profile in JSON format" do
         put :update, id: profile, profile: update_attrs, use_route: 'rez'
         response.body.must_equal(ProfileSerializer.new(profile.reload).to_json)
+      end
+    end
+
+    describe "DELETE destroy" do
+
+      before do @profile = FactoryGirl.create(:profile) end
+      
+      it "destroys the profile" do
+        assert_difference('Profile.count', -1) do
+          delete :destroy, id: @profile, use_route: 'rez'
+        end
+      end 
+
+      it "returns 204 with empty body" do
+        delete :destroy, id: @profile, use_route: 'rez'
+        response.status.must_equal 204
+        response.body.must_equal ''
       end
     end
   end

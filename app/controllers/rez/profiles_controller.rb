@@ -3,7 +3,7 @@ module Rez
 
     def create
       @profile = Profile.create(profile_params)
-      render json: @profile, status: 201
+      render json: @profile, status: :created
     end
 
     def show
@@ -20,6 +20,12 @@ module Rez
       @profile = Profile.find(params[:id])
       @profile.update_attributes(profile_params)
       render json: @profile
+    end
+
+    def destroy
+      @profile = Profile.find(params[:id])
+      @profile.destroy
+      head :no_content
     end
 
     private
