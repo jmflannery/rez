@@ -49,5 +49,39 @@ module Rez
         response.body.must_equal({ addresses: serializer }.to_json)
       end
     end
+
+    describe 'PATCH update' do
+
+      let(:address) { FactoryGirl.create(:address) }
+      let(:update_attrs) {{ building_number: '14013', county: 'Los Angeles' }}
+
+      it "updates the address record" do
+        patch :update, id: address, address: update_attrs, use_route: 'rez'
+        address.reload.building_number.must_equal('14013')
+        address.county.must_equal('Los Angeles')
+      end
+
+      it "returns the updated address in JSON format" do
+        patch :update, id: address, address: update_attrs, use_route: 'rez'
+        response.body.must_equal(AddressSerializer.new(address.reload).to_json)
+      end
+    end
+
+    describe "DELETE destroy" do
+
+      before do @address = FactoryGirl.create(:address) end
+      
+      it "destroys the address" do
+        assert_difference('Address.count', -1) do
+          delete :destroy, id: @address, use_route: 'rez'
+        end
+      end 
+
+      it "returns 204 No Content with empty body" do
+        delete :destroy, id: @address, use_route: 'rez'
+        response.status.must_equal 204
+        response.body.must_equal ''
+      end
+    end
   end
 end

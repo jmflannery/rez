@@ -5,7 +5,7 @@ module Rez
 
     def create
       @address = Address.create(address_params)
-      render json: @address, status: 201
+      render json: @address, status: :created
     end
 
     def show
@@ -16,6 +16,18 @@ module Rez
     def index
       @addresses = Address.all
       render json: @addresses
+    end
+
+    def update
+      @address = Address.find(params[:id])
+      @address.update_attributes(address_params)
+      render json: @address
+    end
+
+    def destroy
+      @address = Address.find(params[:id])
+      @address.destroy
+      head :no_content
     end
 
     private
