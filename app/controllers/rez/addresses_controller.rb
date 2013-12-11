@@ -1,5 +1,3 @@
-require_dependency "rez/application_controller"
-
 module Rez
   class AddressesController < ApplicationController
 
