@@ -1,4 +1,4 @@
-class CreateRezAddress < ActiveRecord::Migration
+class CreateRezAddresses < ActiveRecord::Migration
   def change
     create_table :rez_addresses do |t|
       t.text :building_number
