@@ -11,20 +11,40 @@ module Rez
         let(:token) { FactoryGirl.create(:token, user: current_user) }
         before do request.headers['X-Toke-Key'] = token.key end
 
-        it "responds with 201 Created" do
-          post :create, use_route: 'rez'
-          response.status.must_equal 201
-        end
+        describe "given a valid resume name" do
 
-        it "creates a Resume" do
-          assert_difference('Resume.count', 1) do
-            post :create, use_route: 'rez'
+          let(:params) {{ name: 'My Resume' }}
+
+          it "responds with 201 Created" do
+            post :create, resume: params, use_route: 'rez'
+            response.status.must_equal 201
+          end
+
+          it "creates a Resume" do
+            assert_difference('Resume.count', 1) do
+              post :create, resume: params, use_route: 'rez'
+            end
+          end
+
+          it "returns the created Resume in JSON format" do
+            post :create, resume: params, use_route: 'rez'
+            response.body.must_equal ResumeSerializer.new(assigns(:resume)).to_json
           end
         end
 
-        it "returns the created Resume in JSON format" do
-          post :create, use_route: 'rez'
-          response.body.must_equal ResumeSerializer.new(assigns(:resume)).to_json
+        describe "given no resume name" do
+
+          let(:params) {{ name: '' }}
+
+          it "responds with 400 Bad Request" do
+            post :create, resume: params, use_route: 'rez'
+            response.status.must_equal 400
+          end
+
+          it "returns a hash with the error message" do
+            post :create, resume: params, use_route: 'rez'
+            response.body.must_equal({name: ["can't be blank"]}.to_json)
+          end
         end
       end
 
