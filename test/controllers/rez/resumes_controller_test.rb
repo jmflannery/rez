@@ -97,5 +97,31 @@ module Rez
         end
       end
     end
+
+    describe "GET show" do
+
+      let(:resume) { FactoryGirl.create(:resume) }
+
+      describe "given a valid Resume id" do
+
+        it "responds with 200 OK" do
+          get :show, id: resume, use_route: 'rez'
+          response.status.must_equal 200
+        end
+
+        it "responds with the requested Resume in JSON format" do
+          get :show, id: resume, use_route: 'rez'
+          response.body.must_equal(ResumeSerializer.new(resume).to_json)
+        end
+      end
+
+      describe "given an invalid Resume id" do
+
+        it "responds with 400 Bad Request" do
+          get :show, id: 'wrong', use_route: 'rez'
+          response.status.must_equal 400
+        end
+      end
+    end
   end
 end
