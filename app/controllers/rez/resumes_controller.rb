@@ -1,7 +1,7 @@
 module Rez
   class ResumesController < ApplicationController
 
-    before_action :toke, only: [:create, :index]
+    before_action :toke, only: [:create]
 
     def create
       @resume = Resume.new(resume_params)
