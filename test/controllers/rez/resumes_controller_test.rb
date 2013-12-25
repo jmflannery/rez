@@ -106,5 +106,51 @@ module Rez
         end
       end
     end
+
+    describe "DELETE destroy" do
+
+      before do @resume = FactoryGirl.create(:resume) end
+
+      describe "with a valid Toke key in the header" do
+
+        let(:current_user) { FactoryGirl.create(:user) }
+        let(:token) { FactoryGirl.create(:token, user: current_user) }
+        before do request.headers['X-Toke-Key'] = token.key end
+      
+        describe "given a valid Resume id" do
+
+          it "destroys the resume" do
+            assert_difference('Resume.count', -1) do
+              delete :destroy, id: @resume, use_route: 'rez'
+            end
+          end 
+
+          it "responds with 204 No Content" do
+            delete :destroy, id: @resume, use_route: 'rez'
+            response.status.must_equal 204
+            response.body.must_equal ''
+          end
+        end
+
+        describe "given an invalid Resume id" do
+
+          it "responds with 400 Bad Request" do
+            delete :destroy, id: 'wrong', use_route: 'rez'
+            response.status.must_equal 400
+          end
+        end
+      end
+
+      describe "with an invalid Toke key in the header" do
+
+        let(:token) { FactoryGirl.create(:token) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "responds with 401 Unauthorized" do
+          delete :destroy, id: @resume, use_route: 'rez'
+          response.status.must_equal 401
+        end
+      end
+    end
   end
 end

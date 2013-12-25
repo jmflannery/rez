@@ -1,7 +1,7 @@
 module Rez
   class ResumesController < ApplicationController
 
-    before_action :toke, only: [:create]
+    before_action :toke, only: [:create, :destroy]
 
     def create
       @resume = Resume.new(resume_params)
@@ -20,6 +20,16 @@ module Rez
       resume = Resume.find_by(id: params[:id])
       if resume
         render json: resume
+      else
+        head :bad_request
+      end
+    end
+
+    def destroy
+      resume = Resume.find_by(id: params[:id])
+      if resume
+        resume.destroy
+        head :no_content
       else
         head :bad_request
       end
