@@ -62,39 +62,22 @@ module Rez
 
     describe "GET index" do
 
-      describe "with a valid Toke key in the header" do
+      let(:resume) { FactoryGirl.create(:resume) }
+      let(:resume2) { FactoryGirl.create(:resume) }
 
-        let(:current_user) { FactoryGirl.create(:user) }
-        let(:token) { FactoryGirl.create(:token, user: current_user) }
-        let(:resume) { FactoryGirl.create(:resume) }
-        let(:resume2) { FactoryGirl.create(:resume) }
-
-        before do
-          @resumes = [resume, resume2]
-          request.headers['X-Toke-Key'] = token.key
-        end
-
-        it "responds with 200 OK" do
-          get :index, use_route: 'rez'
-          response.status.must_equal 200
-        end
-
-        it "returns all the Resumes in JSON format" do
-          get :index, use_route: 'rez'
-          serializer = ActiveModel::ArraySerializer.new(@resumes, each_serializer: ResumeSerializer)
-          response.body.must_equal({ resumes: serializer }.to_json)
-        end
+      before do
+        @resumes = [resume, resume2]
       end
 
-      describe "with an invalid Toke key in the header" do
+      it "responds with 200 OK" do
+        get :index, use_route: 'rez'
+        response.status.must_equal 200
+      end
 
-        let(:token) { FactoryGirl.create(:token) }
-        before do request.headers['X-Toke-Key'] = token.key end
-
-        it "responds with 401 Unauthorized" do
-          get :index, use_route: 'rez'
-          response.status.must_equal 401
-        end
+      it "returns all the Resumes in JSON format" do
+        get :index, use_route: 'rez'
+        serializer = ActiveModel::ArraySerializer.new(@resumes, each_serializer: ResumeSerializer)
+        response.body.must_equal({ resumes: serializer }.to_json)
       end
     end
 
