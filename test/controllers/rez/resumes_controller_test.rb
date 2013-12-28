@@ -100,9 +100,9 @@ module Rez
 
       describe "given an invalid Resume id" do
 
-        it "responds with 400 Bad Request" do
+        it "responds with 404 Not Found" do
           get :show, id: 'wrong', use_route: 'rez'
-          response.status.must_equal 400
+          response.status.must_equal 404
         end
       end
     end
@@ -179,9 +179,9 @@ module Rez
 
         describe "given an invalid Resume id" do
 
-          it "responds with 400 Bad Request" do
+          it "responds with 404 Not Found" do
             delete :destroy, id: 'wrong', use_route: 'rez'
-            response.status.must_equal 400
+            response.status.must_equal 404
           end
         end
       end

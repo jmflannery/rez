@@ -2,6 +2,7 @@ module Rez
   class ResumesController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
+    before_action :set_resume, only: [:show, :update, :destroy]
 
     def create
       @resume = Resume.new(resume_params)
@@ -17,35 +18,25 @@ module Rez
     end
 
     def show
-      resume = Resume.find_by(id: params[:id])
-      if resume
-        render json: resume
-      else
-        head :bad_request
-      end
+      render json: @resume
     end
 
     def update
-      resume = Resume.find_by(id: params[:id])
-      if resume
-        resume.update(resume_params)
-        render json: resume
-      else
-        head :not_found
-      end
+      @resume.update(resume_params)
+      render json: @resume
     end
 
     def destroy
-      resume = Resume.find_by(id: params[:id])
-      if resume
-        resume.destroy
-        head :no_content
-      else
-        head :bad_request
-      end
+      @resume.destroy
+      head :no_content
     end
 
     private
+
+    def set_resume
+      @resume = Resume.find_by(id: params[:id])
+      head :not_found unless @resume
+    end
 
     def resume_params
       params.require(:resume).permit(:name)
