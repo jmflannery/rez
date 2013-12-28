@@ -22,8 +22,11 @@ module Rez
     end
 
     def update
-      @resume.update(resume_params)
-      render json: @resume
+      if @resume.update(resume_params)
+        render json: @resume
+      else
+        render json: @resume.errors, status: :unprocessable_entity
+      end
     end
 
     def destroy

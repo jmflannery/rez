@@ -138,6 +138,21 @@ module Rez
             response.status.must_equal 404
           end
         end
+
+        describe "given an invalid resume name" do
+
+          let(:invalid_attrs) {{ name: '' }}
+
+          it "responds with 422 Unprocessable Entity" do
+            put :update, id: resume, resume: invalid_attrs, use_route: 'rez'
+            response.status.must_equal 422
+          end
+
+          it "returns the errors in JSON format" do
+            put :update, id: resume, resume: invalid_attrs, use_route: 'rez'
+            response.body.must_equal({ name: ["can't be blank"]}.to_json)
+          end
+        end
       end
 
       describe "with an invalid Toke key in the header" do
