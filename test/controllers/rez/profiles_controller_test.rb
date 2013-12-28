@@ -51,6 +51,14 @@ module Rez
         get :show, id: profile, use_route: 'rez'
         response.body.must_equal(ProfileSerializer.new(profile).to_json)
       end
+
+      describe "given an invalid profile id" do
+
+        it "responds with 404 Not Found" do
+          get :show, id: 'invalid', use_route: 'rez'
+          response.status.must_equal 404
+        end
+      end
     end
 
     describe "GET index" do
@@ -58,8 +66,11 @@ module Rez
       let(:p1) { FactoryGirl.create(:profile) }
       let(:p2) { FactoryGirl.create(:profile) }
 
-      before do
-        @profiles = [p1, p2]
+      before do @profiles = [p1, p2] end
+
+      it "responds with 200 OK" do
+        get :index, use_route: 'rez'
+        response.status.must_equal 200
       end
 
       it "gets all the profiles in JSON format" do
@@ -89,6 +100,14 @@ module Rez
         it "returns the updated profile in JSON format" do
           put :update, id: profile, profile: update_attrs, use_route: 'rez'
           response.body.must_equal(ProfileSerializer.new(profile.reload).to_json)
+        end
+
+        describe "given an invalid profile id" do
+
+          it "responds with 404 Not Found" do
+            put :update, id: 'invalid', profile: update_attrs, use_route: 'rez'
+            response.status.must_equal 404
+          end
         end
       end
 
@@ -124,6 +143,14 @@ module Rez
           delete :destroy, id: @profile, use_route: 'rez'
           response.status.must_equal 204
           response.body.must_equal ''
+        end
+
+        describe "given an invalid profile id" do
+
+          it "responds with 404 Not Found" do
+            delete :destroy, id: 'invalid', use_route: 'rez'
+            response.status.must_equal 404
+          end
         end
       end
 

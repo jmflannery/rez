@@ -32,6 +32,7 @@ module Rez
 
     def set_profile
       @profile = Profile.find_by(id: params[:id])
+      head :not_found unless @profile
     end
 
     def profile_params
