@@ -91,6 +91,11 @@ module Rez
         let(:token) { FactoryGirl.create(:token, user: current_user) }
         before do request.headers['X-Toke-Key'] = token.key end
 
+        it "responds with 200 OK" do
+          put :update, id: profile, profile: update_attrs, use_route: 'rez'
+          response.status.must_equal 200
+        end
+
         it "updates the profile record" do
           put :update, id: profile, profile: update_attrs, use_route: 'rez'
           profile.reload.firstname.must_equal('Bill')
