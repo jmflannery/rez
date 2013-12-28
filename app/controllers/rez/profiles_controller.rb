@@ -1,6 +1,7 @@
 module Rez
   class ProfilesController < ApplicationController
 
+    before_action :toke, only: [:create, :update, :destroy]
     before_action :set_profile, only: [:show, :update, :destroy]
 
     def create

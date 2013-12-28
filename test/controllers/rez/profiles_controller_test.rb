@@ -8,20 +8,38 @@ module Rez
 
       let(:profile_attrs) { FactoryGirl.attributes_for(:profile) }
 
-      it "returns HTTP created 201" do
-        post :create, profile: profile_attrs, use_route: 'rez'
-        response.status.must_equal 201
-      end
-    
-      it "creates a Profile" do
-        assert_difference('Profile.count', 1) do
+      describe "with a valid Toke key in the header" do
+
+        let(:current_user) { FactoryGirl.create(:user) }
+        let(:token) { FactoryGirl.create(:token, user: current_user) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "returns HTTP created 201" do
           post :create, profile: profile_attrs, use_route: 'rez'
+          response.status.must_equal 201
+        end
+      
+        it "creates a Profile" do
+          assert_difference('Profile.count', 1) do
+            post :create, profile: profile_attrs, use_route: 'rez'
+          end
+        end
+
+        it "returns the Profile as json" do
+          post :create, profile: profile_attrs, use_route: 'rez'
+          response.body.must_equal(ProfileSerializer.new(assigns(:profile)).to_json)
         end
       end
 
-      it "returns the Profile as json" do
-        post :create, profile: profile_attrs, use_route: 'rez'
-        response.body.must_equal(ProfileSerializer.new(assigns(:profile)).to_json)
+      describe "with an invalid Toke key in the header" do
+
+        let(:token) { FactoryGirl.create(:token) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "responds with 401 Unauthorized" do
+          post :create, profile: profile_attrs, use_route: 'rez'
+          response.status.must_equal 401
+        end
       end
     end
 
@@ -56,15 +74,33 @@ module Rez
       let(:profile) { FactoryGirl.create(:profile) }
       let(:update_attrs) {{ firstname: 'Bill', title: 'Sr Train Master' }}
 
-      it "updates the profile record" do
-        put :update, id: profile, profile: update_attrs, use_route: 'rez'
-        profile.reload.firstname.must_equal('Bill')
-        profile.title.must_equal('Sr Train Master')
+      describe "with a valid Toke key in the header" do
+
+        let(:current_user) { FactoryGirl.create(:user) }
+        let(:token) { FactoryGirl.create(:token, user: current_user) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "updates the profile record" do
+          put :update, id: profile, profile: update_attrs, use_route: 'rez'
+          profile.reload.firstname.must_equal('Bill')
+          profile.title.must_equal('Sr Train Master')
+        end
+
+        it "returns the updated profile in JSON format" do
+          put :update, id: profile, profile: update_attrs, use_route: 'rez'
+          response.body.must_equal(ProfileSerializer.new(profile.reload).to_json)
+        end
       end
 
-      it "returns the updated profile in JSON format" do
-        put :update, id: profile, profile: update_attrs, use_route: 'rez'
-        response.body.must_equal(ProfileSerializer.new(profile.reload).to_json)
+      describe "with an invalid Toke key in the header" do
+
+        let(:token) { FactoryGirl.create(:token) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "responds with 401 Unauthorized" do
+          put :update, id: profile, profile: update_attrs, use_route: 'rez'
+          response.status.must_equal 401
+        end
       end
     end
 
@@ -72,16 +108,34 @@ module Rez
 
       before do @profile = FactoryGirl.create(:profile) end
       
-      it "destroys the profile" do
-        assert_difference('Profile.count', -1) do
-          delete :destroy, id: @profile, use_route: 'rez'
-        end
-      end 
+      describe "with a valid Toke key in the header" do
 
-      it "returns 204 with empty body" do
-        delete :destroy, id: @profile, use_route: 'rez'
-        response.status.must_equal 204
-        response.body.must_equal ''
+        let(:current_user) { FactoryGirl.create(:user) }
+        let(:token) { FactoryGirl.create(:token, user: current_user) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "destroys the profile" do
+          assert_difference('Profile.count', -1) do
+            delete :destroy, id: @profile, use_route: 'rez'
+          end
+        end 
+
+        it "returns 204 with empty body" do
+          delete :destroy, id: @profile, use_route: 'rez'
+          response.status.must_equal 204
+          response.body.must_equal ''
+        end
+      end
+
+      describe "with an invalid Toke key in the header" do
+
+        let(:token) { FactoryGirl.create(:token) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "responds with 401 Unauthorized" do
+          delete :destroy, id: @profile, use_route: 'rez'
+          response.status.must_equal 401
+        end
       end
     end
   end
