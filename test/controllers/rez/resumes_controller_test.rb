@@ -107,6 +107,51 @@ module Rez
       end
     end
 
+    describe "PUT update" do
+
+      let(:resume) { FactoryGirl.create(:resume, name: 'My Resume') }
+      let(:update_attrs) {{ name: 'My Awesome Resume' }}
+
+      describe "with a valid Toke key in the header" do
+
+        let(:current_user) { FactoryGirl.create(:user) }
+        let(:token) { FactoryGirl.create(:token, user: current_user) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        describe "on successfull update" do
+
+          it "updates the resume record" do
+            put :update, id: resume, resume: update_attrs, use_route: 'rez'
+            resume.reload.name.must_equal('My Awesome Resume')
+          end
+
+          it "returns the updated resume in JSON format" do
+            put :update, id: resume, resume: update_attrs, use_route: 'rez'
+            response.body.must_equal(ResumeSerializer.new(resume.reload).to_json)
+          end
+        end
+
+        describe "given an invalid resume id" do
+
+          it "responds with 404 Not Found" do
+            put :update, id: 'nope', resume: update_attrs, use_route: 'rez'
+            response.status.must_equal 404
+          end
+        end
+      end
+
+      describe "with an invalid Toke key in the header" do
+
+        let(:token) { FactoryGirl.create(:token) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "responds with 401 Unauthorized" do
+          put :update, id: resume, resume: update_attrs, use_route: 'rez'
+          response.status.must_equal 401
+        end
+      end
+    end
+
     describe "DELETE destroy" do
 
       before do @resume = FactoryGirl.create(:resume) end
