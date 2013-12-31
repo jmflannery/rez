@@ -120,6 +120,11 @@ module Rez
 
         describe "on successfull update" do
 
+          it "responds with 200 OK" do
+            put :update, id: resume, resume: update_attrs, use_route: 'rez'
+            response.status.must_equal 200
+          end
+
           it "updates the resume record" do
             put :update, id: resume, resume: update_attrs, use_route: 'rez'
             resume.reload.name.must_equal('My Awesome Resume')
@@ -128,6 +133,48 @@ module Rez
           it "returns the updated resume in JSON format" do
             put :update, id: resume, resume: update_attrs, use_route: 'rez'
             response.body.must_equal(ResumeSerializer.new(resume.reload).to_json)
+          end
+
+          describe 'updating the Profile' do
+
+            describe 'given a valid profile id' do
+
+              let(:profile) { FactoryGirl.create(:profile, firstname: 'Jaxon', nickname: 'Jax') }
+              let(:update_attrs) {{ profile_id: profile.id, name: 'Business Resume' }}
+
+              it 'responds with 200 OK' do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response.status.must_equal 200
+              end
+
+              it "updates the Resume's Profile" do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                resume.reload.profile.id.must_equal profile.id
+              end
+
+              it "returns the updated resume in JSON format with embedded Profile" do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response_json = JSON.parse(response.body)
+                response_json['resume']['profile']['firstname'].must_equal 'Jaxon'
+                response_json['resume']['profile']['nickname'].must_equal 'Jax'
+                response_json['resume']['name'].must_equal 'Business Resume'
+              end
+            end
+            
+            describe 'given an invalid profile id' do
+
+              let(:update_attrs) {{ profile_id: 'wrong' }}
+
+              it 'responds with 404 Not Found' do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response.status.must_equal 404
+              end
+
+              it 'responds with a JSON formatted error message' do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response.body.must_equal({ profile_id: "Profile wrong not found" }.to_json)
+              end
+            end
           end
         end
 
