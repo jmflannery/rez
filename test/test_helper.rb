@@ -2,6 +2,7 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path("../dummy/config/environment", __FILE__)
 require "rails/test_help"
 require "minitest/rails"
+require "database_cleaner"
 
 # To add Capybara feature tests add `gem "minitest-rails-capybara"`
 # to the test group in the Gemfile and uncomment the following:
@@ -18,4 +19,16 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
+end
+
+DatabaseCleaner.strategy = :transaction
+
+class MiniTest::Spec
+  before :each do
+    DatabaseCleaner.start
+  end
+
+  after :each do
+    DatabaseCleaner.clean
+  end
 end
