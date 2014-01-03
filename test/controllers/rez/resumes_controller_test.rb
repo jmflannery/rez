@@ -155,8 +155,7 @@ module Rez
               it "returns the updated resume in JSON format with embedded Profile" do
                 put :update, id: resume, resume: update_attrs, use_route: 'rez'
                 response_json = JSON.parse(response.body)
-                response_json['resume']['profile']['firstname'].must_equal 'Jaxon'
-                response_json['resume']['profile']['nickname'].must_equal 'Jax'
+                response_json['resume']['profile_id'].must_equal profile.id
                 response_json['resume']['name'].must_equal 'Business Resume'
               end
             end
