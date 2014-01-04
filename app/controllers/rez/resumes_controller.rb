@@ -45,13 +45,13 @@ module Rez
     def update_profile
       if params[:resume][:profile_id]
         profile_id = params[:resume][:profile_id]
-        @profile = Profile.find_by(id: profile_id)
-        if @profile
-          @resume.update(profile: @profile)
+        if Profile.exists?(profile_id)
+          @resume.update(profile_id: profile_id)
         else
           error = { profile_id: "Profile #{profile_id} not found" }
           render json: error, status: :not_found
         end
+        params[:resume].delete(:profile_id)
       end
     end
 
