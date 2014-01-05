@@ -175,6 +175,47 @@ module Rez
               end
             end
           end
+
+          describe 'updating the Address' do
+
+            describe 'given a valid address id' do
+
+              let(:address) { FactoryGirl.create(:address, building_number: '22', street_name: 'G St') }
+              let(:update_attrs) {{ address_id: address.id, name: 'Fun Resume' }}
+
+              it 'responds with 200 OK' do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response.status.must_equal 200
+              end
+
+              it "updates the Resume's Address" do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                resume.reload.address.id.must_equal address.id
+              end
+
+              it "returns the updated resume in JSON format with address_id" do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response_json = JSON.parse(response.body)
+                response_json['resume']['address_id'].must_equal address.id
+                response_json['resume']['name'].must_equal 'Fun Resume'
+              end
+            end
+            
+            describe 'given an invalid address id' do
+
+              let(:update_attrs) {{ address_id: 'wrong' }}
+
+              it 'responds with 404 Not Found' do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response.status.must_equal 404
+              end
+
+              it 'responds with a JSON formatted error message' do
+                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                response.body.must_equal({ address_id: "Address wrong not found" }.to_json)
+              end
+            end
+          end
         end
 
         describe "given an invalid resume id" do

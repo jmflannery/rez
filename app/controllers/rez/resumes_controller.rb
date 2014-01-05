@@ -4,6 +4,7 @@ module Rez
     before_action :toke, only: [:create, :update, :destroy]
     before_action :set_resume, only: [:show, :update, :destroy]
     before_action :update_profile, only: [:update]
+    before_action :update_address, only: [:update]
 
     def create
       @resume = Resume.new(resume_params)
@@ -52,6 +53,19 @@ module Rez
           render json: error, status: :not_found
         end
         params[:resume].delete(:profile_id)
+      end
+    end
+
+    def update_address
+      if params[:resume][:address_id]
+        address_id = params[:resume][:address_id]
+        if Address.exists?(address_id)
+          @resume.update(address_id: address_id)
+        else
+          error = { address_id: "Address #{address_id} not found" }
+          render json: error, status: :not_found
+        end
+        params[:resume].delete(:address_id)
       end
     end
 
