@@ -24,6 +24,14 @@ module Rez
           post :create, address: address_attrs, use_route: 'rez'
           response.body.must_equal(AddressSerializer.new(assigns(:address)).to_json)
         end
+
+        it "sets each permitted param" do
+          post :create, address: address_attrs, use_route: 'rez'
+          json = JSON.parse(response.body)
+          AddressesController.permitted_params.each do |param|
+            json['address'][param.to_s].must_equal assigns[:address][param]
+          end
+        end
       end
     end
 

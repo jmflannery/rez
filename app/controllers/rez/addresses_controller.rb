@@ -28,10 +28,14 @@ module Rez
       head :no_content
     end
 
+    def self.permitted_params
+      [:building_number, :street_name, :secondary_address, :city, :state, :zip_code, :county, :country, :area_code, :phone_number]
+    end
+
     private
 
     def address_params
-      params.require(:address).permit(:building_number, :street_name, :secondary_address, :city, :state, :zip_code, :county, :country)
+      params.require(:address).permit(AddressesController.permitted_params)
     end
   end
 end
