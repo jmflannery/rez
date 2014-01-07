@@ -3,8 +3,8 @@ require 'test_helper'
 module Rez
   class ParagraphsController < ApplicationController
 
-    before_action :toke, only: [:create, :index, :show]
-    before_action :set_paragraph, only: [:show]
+    before_action :toke, only: [:create, :index, :show, :update]
+    before_action :set_paragraph, only: [:show, :update]
 
     def create
       paragraph = Paragraph.create(paragraph_params)
@@ -16,6 +16,11 @@ module Rez
     end
 
     def show
+      render json: @paragraph
+    end
+
+    def update
+      @paragraph.update(paragraph_params)
       render json: @paragraph
     end
 
