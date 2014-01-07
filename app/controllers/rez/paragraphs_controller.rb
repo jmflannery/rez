@@ -3,11 +3,15 @@ require 'test_helper'
 module Rez
   class ParagraphsController < ApplicationController
 
-    before_action :toke, only: [:create]
+    before_action :toke, only: [:create, :index]
 
     def create
       paragraph = Paragraph.create(paragraph_params)
       render json: paragraph, status: :created
+    end
+
+    def index
+      render json: Paragraph.all
     end
 
     private
