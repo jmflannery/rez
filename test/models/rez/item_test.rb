@@ -18,10 +18,10 @@ module Rez
       FactoryGirl.build(:item).must_be :valid?
     end
 
-    it 'has many Paragraphs' do
+    it 'has many Points' do
       p = FactoryGirl.create(:paragraph, item: subject)
       p2 = FactoryGirl.create(:paragraph, item: subject)
-      subject.paragraphs.must_equal [p, p2]
+      subject.points.must_equal [p, p2]
     end
   end
 end

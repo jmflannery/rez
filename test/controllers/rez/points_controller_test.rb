@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Rez
-  describe ParagraphsController do
+  describe PointsController do
 
     describe "POST create" do
 
@@ -14,13 +14,13 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 201 Created" do
-          post :create, paragraph: attrs, use_route: 'rez'
+          post :create, point: attrs, use_route: 'rez'
           response.status.must_equal 201
         end
         
-        it "creates a Paragraph" do
-          assert_difference('Paragraph.count', 1) do
-            post :create, paragraph: attrs, use_route: 'rez'
+        it "creates a Point" do
+          assert_difference('Point.count', 1) do
+            post :create, point: attrs, use_route: 'rez'
           end
         end
 
@@ -29,12 +29,12 @@ module Rez
           let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }
 
           it "responds with 400 Bad Request" do
-            post :create, paragraph: attrs, use_route: 'rez'
+            post :create, point: attrs, use_route: 'rez'
             response.status.must_equal 400
           end
 
           it "responds with an error message" do
-            post :create, paragraph: attrs, use_route: 'rez'
+            post :create, point: attrs, use_route: 'rez'
             response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
           end
         end
@@ -46,7 +46,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          post :create, paragraph: attrs, use_route: 'rez'
+          post :create, point: attrs, use_route: 'rez'
           response.status.must_equal 401
         end
       end
@@ -58,7 +58,7 @@ module Rez
       let(:p2) { FactoryGirl.create(:paragraph) }
 
       before do
-        @paragraphs = [p, p2]
+        @points = [p, p2]
       end
 
       describe "with a valid Toke key in the header" do
@@ -72,10 +72,10 @@ module Rez
           response.status.must_equal 200
         end
 
-        it "returns all the Paragraphs in JSON format" do
+        it "returns all the Points in JSON format" do
           get :index, use_route: 'rez'
-          serializer = ActiveModel::ArraySerializer.new(@paragraphs, each_serializer: ParagraphSerializer)
-          response.body.must_equal({ paragraphs: serializer }.to_json)
+          serializer = ActiveModel::ArraySerializer.new(@points, each_serializer: PointSerializer)
+          response.body.must_equal({ points: serializer }.to_json)
         end
       end
 
@@ -93,7 +93,7 @@ module Rez
 
     describe "GET show" do
 
-      let(:paragraph) { FactoryGirl.create(:paragraph) }
+      let(:point) { FactoryGirl.create(:paragraph) }
 
       describe "with a valid Toke key in the header" do
 
@@ -101,20 +101,20 @@ module Rez
         let(:token) { FactoryGirl.create(:token, user: current_user) }
         before do request.headers['X-Toke-Key'] = token.key end
 
-        describe "given a valid Paragraph id" do
+        describe "given a valid Point id" do
 
           it "responds with 200 OK" do
-            get :show, id: paragraph, use_route: 'rez'
+            get :show, id: point, use_route: 'rez'
             response.status.must_equal 200
           end
 
-          it "responds with the requested Paragraph in JSON format" do
-            get :show, id: paragraph, use_route: 'rez'
-            response.body.must_equal(ParagraphSerializer.new(paragraph).to_json)
+          it "responds with the requested Point in JSON format" do
+            get :show, id: point, use_route: 'rez'
+            response.body.must_equal(PointSerializer.new(point).to_json)
           end
         end
 
-        describe "given an invalid Paragraph id" do
+        describe "given an invalid Point id" do
 
           it "responds with 404 Not Found" do
             get :show, id: 'wrong', use_route: 'rez'
@@ -129,7 +129,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          get :show, id: paragraph, use_route: 'rez'
+          get :show, id: point, use_route: 'rez'
           response.status.must_equal 401
         end
       end
@@ -137,8 +137,8 @@ module Rez
 
     describe "PUT update" do
 
-      let(:paragraph) { FactoryGirl.create(:paragraph, text: 'My paragraph', rank: 9) }
-      let(:update_attrs) {{ text: 'My Awesome Paragraph', rank: 1 }}
+      let(:point) { FactoryGirl.create(:paragraph, text: 'My paragraph', rank: 9) }
+      let(:update_attrs) {{ text: 'My Awesome Point', rank: 1 }}
 
       describe "with a valid Toke key in the header" do
 
@@ -149,26 +149,26 @@ module Rez
         describe "on successfull update" do
 
           it "responds with 200 OK" do
-            put :update, id: paragraph, paragraph: update_attrs, use_route: 'rez'
+            put :update, id: point, point: update_attrs, use_route: 'rez'
             response.status.must_equal 200
           end
 
-          it "updates the paragraph record" do
-            put :update, id: paragraph, paragraph: update_attrs, use_route: 'rez'
-            paragraph.reload.text.must_equal 'My Awesome Paragraph'
-            paragraph.rank.must_equal 1
+          it "updates the point record" do
+            put :update, id: point, point: update_attrs, use_route: 'rez'
+            point.reload.text.must_equal 'My Awesome Point'
+            point.rank.must_equal 1
           end
 
-          it "returns the updated paragraph in JSON format" do
-            put :update, id: paragraph, paragraph: update_attrs, use_route: 'rez'
-            response.body.must_equal(ParagraphSerializer.new(paragraph.reload).to_json)
+          it "returns the updated point in JSON format" do
+            put :update, id: point, point: update_attrs, use_route: 'rez'
+            response.body.must_equal(PointSerializer.new(point.reload).to_json)
           end
         end
 
-        describe "given an invalid paragraph id" do
+        describe "given an invalid point id" do
 
           it "responds with 404 Not Found" do
-            put :update, id: 'nope', paragraph: update_attrs, use_route: 'rez'
+            put :update, id: 'nope', point: update_attrs, use_route: 'rez'
             response.status.must_equal 404
           end
         end
@@ -180,7 +180,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          put :update, id: paragraph, paragraph: update_attrs, use_route: 'rez'
+          put :update, id: point, point: update_attrs, use_route: 'rez'
           response.status.must_equal 401
         end
       end
@@ -188,7 +188,7 @@ module Rez
 
     describe "DELETE destroy" do
 
-      before do @paragraph = FactoryGirl.create(:paragraph) end
+      before do @point = FactoryGirl.create(:paragraph) end
 
       describe "with a valid Toke key in the header" do
 
@@ -196,22 +196,22 @@ module Rez
         let(:token) { FactoryGirl.create(:token, user: current_user) }
         before do request.headers['X-Toke-Key'] = token.key end
       
-        describe "given a valid Paragraph id" do
+        describe "given a valid Point id" do
 
-          it "destroys the paragraph" do
-            assert_difference('Paragraph.count', -1) do
-              delete :destroy, id: @paragraph, use_route: 'rez'
+          it "destroys the point" do
+            assert_difference('Point.count', -1) do
+              delete :destroy, id: @point, use_route: 'rez'
             end
           end 
 
           it "responds with 204 No Content" do
-            delete :destroy, id: @paragraph, use_route: 'rez'
+            delete :destroy, id: @point, use_route: 'rez'
             response.status.must_equal 204
             response.body.must_equal ''
           end
         end
 
-        describe "given an invalid Paragraph id" do
+        describe "given an invalid Point id" do
 
           it "responds with 404 Not Found" do
             delete :destroy, id: 'wrong', use_route: 'rez'
@@ -226,7 +226,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          delete :destroy, id: @paragraph, use_route: 'rez'
+          delete :destroy, id: @point, use_route: 'rez'
           response.status.must_equal 401
         end
       end

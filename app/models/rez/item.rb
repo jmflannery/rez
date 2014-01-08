@@ -1,5 +1,5 @@
 module Rez
   class Item < ActiveRecord::Base
-    has_many :paragraphs
+    has_many :points
   end
 end

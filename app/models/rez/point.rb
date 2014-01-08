@@ -1,5 +1,5 @@
 module Rez
-  class Paragraph < ActiveRecord::Base
+  class Point < ActiveRecord::Base
     belongs_to :item
 
     validates :point_type, inclusion: { in: ['paragraph', 'bullet'],

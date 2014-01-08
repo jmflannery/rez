@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Rez
-  describe Paragraph do
+  describe Point do
 
     let(:paragraph_attrs) {{
       text: 'This is a paragraph. It has 2 sentences.',
@@ -15,10 +15,10 @@ module Rez
       rank: 3
     }}
 
-    let(:paragraph) { Paragraph.new(paragraph_attrs) }
-    let(:bullet) { Paragraph.new(bullet_attrs) }
+    let(:paragraph) { Point.new(paragraph_attrs) }
+    let(:bullet) { Point.new(bullet_attrs) }
 
-    it 'creates a Paragraph type Point given valid attributes' do
+    it 'creates a Point type Point given valid attributes' do
       paragraph.must_be :valid?
     end
 
@@ -32,7 +32,7 @@ module Rez
     end
 
     it 'is invalid with a type other than "paragraph" or "bullet"' do
-      Paragraph.new(point_type: 'other', text: 'Other type').wont_be :valid?
+      Point.new(point_type: 'other', text: 'Other type').wont_be :valid?
     end
 
     it 'belongs to Item' do
