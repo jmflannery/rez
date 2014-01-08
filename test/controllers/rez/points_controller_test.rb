@@ -172,6 +172,21 @@ module Rez
             response.status.must_equal 404
           end
         end
+
+        describe "given an invalid point_type" do
+
+          let(:attrs) {{ point_type: 'nonexistant' }}
+
+          it "responds with 400 Bad Request" do
+            put :update, id: point, point: attrs, use_route: 'rez'
+            response.status.must_equal 400
+          end
+
+          it "responds with an error message" do
+            put :update, id: point, point: attrs, use_route: 'rez'
+            response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
+          end
+        end
       end
 
       describe "with an invalid Toke key in the header" do

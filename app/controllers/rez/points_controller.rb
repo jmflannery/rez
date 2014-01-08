@@ -24,8 +24,11 @@ module Rez
     end
 
     def update
-      @point.update(point_params)
-      render json: @point
+      if @point.update(point_params)
+        render json: @point
+      else
+        render json: @point.errors, status: :bad_request
+      end
     end
 
     def destroy
