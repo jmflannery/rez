@@ -7,8 +7,12 @@ module Rez
     before_action :set_paragraph, only: [:show, :update, :destroy]
 
     def create
-      paragraph = Paragraph.create(paragraph_params)
-      render json: paragraph, status: :created
+      paragraph = Paragraph.new(paragraph_params)
+      if paragraph.save
+        render json: paragraph, status: :created
+      else
+        render json: paragraph.errors, status: :bad_request
+      end
     end
 
     def index
@@ -37,7 +41,7 @@ module Rez
     end
 
     def paragraph_params
-      params.require(:paragraph).permit([:text, :rank])
+      params.require(:paragraph).permit([:text, :rank, :point_type])
     end
   end
 end

@@ -23,6 +23,21 @@ module Rez
             post :create, paragraph: attrs, use_route: 'rez'
           end
         end
+
+        describe "given an invalid point_type" do
+
+          let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }
+
+          it "responds with 400 Bad Request" do
+            post :create, paragraph: attrs, use_route: 'rez'
+            response.status.must_equal 400
+          end
+
+          it "responds with an error message" do
+            post :create, paragraph: attrs, use_route: 'rez'
+            response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
+          end
+        end
       end
 
       describe "without a valid Toke key in the header" do
