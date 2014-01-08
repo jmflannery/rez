@@ -40,5 +40,35 @@ module Rez
       bullet.update(item_id: item.id)
       bullet.item.must_equal item
     end
+
+    describe 'scope' do
+
+      before do
+        bullet.save
+        paragraph.save
+      end
+
+      describe 'paragraphs' do
+
+        it 'returns all paragraph points' do
+          Point.paragraphs.must_include paragraph
+        end
+
+        it 'does not return non paragraph points' do
+          Point.paragraphs.wont_include bullet
+        end
+      end
+
+      describe 'bullets' do
+
+        it 'returns all bullet points' do
+          Point.bullets.must_include bullet
+        end
+
+        it 'does not return non bullet points' do
+          Point.bullets.wont_include paragraph
+        end
+      end
+    end 
   end
 end
