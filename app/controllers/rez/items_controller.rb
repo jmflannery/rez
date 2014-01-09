@@ -1,8 +1,8 @@
 module Rez
   class ItemsController < ApplicationController
 
-    before_action :toke, only: [:create, :update]
-    before_action :set_item, only: [:show, :update]
+    before_action :toke, only: [:create, :update, :destroy]
+    before_action :set_item, only: [:show, :update, :destroy]
 
     def create
       @item = Item.new(item_params)
@@ -21,6 +21,11 @@ module Rez
     def update
       @item.update(item_params)
       render json: @item
+    end
+
+    def destroy
+      @item.destroy
+      head :no_content
     end
 
     private
