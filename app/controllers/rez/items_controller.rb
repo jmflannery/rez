@@ -6,8 +6,11 @@ module Rez
 
     def create
       @item = Item.new(item_params)
-      @item.save
-      render json: @item, status: :created
+      if @item.save
+        render json: @item, status: :created
+      else
+        render json: @item.errors, status: :bad_request
+      end
     end
 
     def index
@@ -36,7 +39,7 @@ module Rez
     end
 
     def item_params
-      params.require(:item).permit(:title, :heading)
+      params.require(:item).permit(:name, :title, :heading)
     end
   end
 end

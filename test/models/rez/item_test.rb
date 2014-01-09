@@ -4,6 +4,7 @@ module Rez
   describe Item do
 
     let(:attrs) {{
+      name: 'arinc',
       title: 'Arinc Inc, June 2008 to Feb 2012',
       heading: 'Software Developer'
     }}
@@ -16,6 +17,11 @@ module Rez
 
     it 'has a valid Factory' do
       FactoryGirl.build(:item).must_be :valid?
+    end
+
+    it 'is invalid without a name' do
+      subject.name = ''
+      subject.wont_be :valid?
     end
 
     it 'has many Paragraphs' do

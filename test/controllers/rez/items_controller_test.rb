@@ -35,6 +35,21 @@ module Rez
           post :create, item: item_attrs, use_route: 'rez'
           response.body.must_equal ItemSerializer.new(assigns(:item)).to_json
         end
+
+        describe "given no resume name" do
+
+          before do item_attrs[:name] = '' end
+
+          it "responds with 400 Bad Request" do
+            post :create, item: item_attrs, use_route: 'rez'
+            response.status.must_equal 400
+          end
+
+          it "returns a hash with the error message" do
+            post :create, item: item_attrs, use_route: 'rez'
+            response.body.must_equal({name: ["can't be blank"]}.to_json)
+          end
+        end
       end
 
       describe "with an invalid Toke key in the header" do
