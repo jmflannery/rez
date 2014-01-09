@@ -48,5 +48,26 @@ module Rez
         end
       end
     end
+
+    describe 'GET index' do
+
+      let(:item) { FactoryGirl.create(:item) }
+      let(:item2) { FactoryGirl.create(:item) }
+
+      before do
+        @items = [item, item2]
+      end
+
+      it "responds with 200 OK" do
+        get :index, use_route: 'rez'
+        response.status.must_equal 200
+      end
+
+      it "returns all the Items in JSON format" do
+        get :index, use_route: 'rez'
+        serializer = ActiveModel::ArraySerializer.new(@items, each_serializer: ItemSerializer)
+        response.body.must_equal({ items: serializer }.to_json)
+      end
+    end
   end
 end
