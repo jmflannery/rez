@@ -95,5 +95,56 @@ module Rez
         end
       end
     end
+
+    describe "PUT update" do
+
+      let(:item) { FactoryGirl.create(:item) }
+      let(:update_attrs) {{ title: 'My Awesome Title', heading: 'My Sweet Heading' }}
+
+      describe "with a valid Toke key in the header" do
+
+        let(:current_user) { FactoryGirl.create(:user) }
+        let(:token) { FactoryGirl.create(:token, user: current_user) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        describe "on successfull update" do
+
+          it "responds with 200 OK" do
+            put :update, id: item, item: update_attrs, use_route: 'rez'
+            response.status.must_equal 200
+          end
+
+          it "updates the item record" do
+            put :update, id: item, item: update_attrs, use_route: 'rez'
+            item.reload.title.must_equal('My Awesome Title')
+            item.heading.must_equal('My Sweet Heading')
+          end
+
+          it "returns the updated item in JSON format" do
+            put :update, id: item, item: update_attrs, use_route: 'rez'
+            response.body.must_equal(ItemSerializer.new(item.reload).to_json)
+          end
+        end
+
+        describe "given an invalid item id" do
+
+          it "responds with 404 Not Found" do
+            put :update, id: 'nope', item: update_attrs, use_route: 'rez'
+            response.status.must_equal 404
+          end
+        end
+      end
+
+      describe "with an invalid Toke key in the header" do
+
+        let(:token) { FactoryGirl.create(:token) }
+        before do request.headers['X-Toke-Key'] = token.key end
+
+        it "responds with 401 Unauthorized" do
+          put :update, id: item, item: update_attrs, use_route: 'rez'
+          response.status.must_equal 401
+        end
+      end
+    end
   end
 end
