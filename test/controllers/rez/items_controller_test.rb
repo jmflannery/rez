@@ -69,5 +69,31 @@ module Rez
         response.body.must_equal({ items: serializer }.to_json)
       end
     end
+
+    describe "GET show" do
+
+      let(:item) { FactoryGirl.create(:item) }
+
+      describe "given a valid Item id" do
+
+        it "responds with 200 OK" do
+          get :show, id: item, use_route: 'rez'
+          response.status.must_equal 200
+        end
+
+        it "responds with the requested Item in JSON format" do
+          get :show, id: item, use_route: 'rez'
+          response.body.must_equal(ItemSerializer.new(item).to_json)
+        end
+      end
+
+      describe "given an invalid Item id" do
+
+        it "responds with 404 Not Found" do
+          get :show, id: 'wrong', use_route: 'rez'
+          response.status.must_equal 404
+        end
+      end
+    end
   end
 end

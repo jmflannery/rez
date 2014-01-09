@@ -2,6 +2,7 @@ module Rez
   class ItemsController < ApplicationController
 
     before_action :toke, only: [:create]
+    before_action :set_item, only: [:show]
 
     def create
       @item = Item.new(item_params)
@@ -13,7 +14,16 @@ module Rez
       render json: Item.all
     end
 
+    def show
+      render json: @item
+    end
+
     private
+
+    def set_item
+      @item = Item.find_by(id: params[:id])
+      head :not_found unless @item
+    end
 
     def item_params
       params.require(:item).permit(:title, :heading)
