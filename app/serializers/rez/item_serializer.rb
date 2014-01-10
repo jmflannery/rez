@@ -1,7 +1,7 @@
 module Rez
   class ItemSerializer < ActiveModel::Serializer
     embed :ids
-    attributes :id, :title, :heading
+    attributes :id, :name, :title, :heading
     has_many :paragraphs
     has_many :bullets
   end
