@@ -13,7 +13,7 @@ module Rez
 
     it 'serializes an Item to JSON' do
       serialized = ItemSerializer.new(item).to_json
-      serialized.must_equal %Q({"item":{"id":#{item.id},"name":"#{item.name}","title":"#{item.title}","heading":"#{item.heading}","paragraph_ids":[#{@paragraph.id}],"bullet_ids":[#{@bullet.id}]}})
+      serialized.must_equal %Q({"item":{"id":#{item.id},"name":"#{item.name}","title":"#{item.title}","heading":"#{item.heading}","rank":#{item.rank},"visible":#{item.visible},"paragraph_ids":[#{@paragraph.id}],"bullet_ids":[#{@bullet.id}]}})
     end
   end
 end

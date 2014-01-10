@@ -4,5 +4,7 @@ module Rez
     has_many :bullets, -> { where point_type: 'bullet' }, class_name: 'Point'
 
     validates :name, presence: true
+
+    scope :ranked, -> { order :rank }
   end
 end

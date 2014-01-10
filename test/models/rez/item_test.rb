@@ -6,7 +6,9 @@ module Rez
     let(:attrs) {{
       name: 'arinc',
       title: 'Arinc Inc, June 2008 to Feb 2012',
-      heading: 'Software Developer'
+      heading: 'Software Developer',
+      rank: 4,
+      visible: true
     }}
 
     let(:subject) { Item.new(attrs) }
@@ -36,6 +38,13 @@ module Rez
       b2 = FactoryGirl.create(:bullet, item: subject)
       p = FactoryGirl.create(:paragraph, item: subject)
       subject.bullets.must_equal [b, b2]
+    end
+
+    it 'can sort by rank' do
+      subject.save
+      last = FactoryGirl.create(:item, rank: 9)
+      first = FactoryGirl.create(:item, rank: 1)
+      Item.ranked.to_a.must_equal [first, subject, last]
     end
   end
 end
