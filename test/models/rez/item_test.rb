@@ -46,5 +46,12 @@ module Rez
       first = FactoryGirl.create(:item, rank: 1)
       Item.ranked.to_a.must_equal [first, subject, last]
     end
+
+    it 'can retrieve only visible items' do
+      subject.save
+      hidden = FactoryGirl.create(:item, visible: false)
+      Item.visible.must_include subject
+      Item.visible.wont_include hidden
+    end
   end
 end

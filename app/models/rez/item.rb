@@ -6,5 +6,6 @@ module Rez
     validates :name, presence: true
 
     scope :ranked, -> { order :rank }
+    scope :visible, -> { where visible: true }
   end
 end
