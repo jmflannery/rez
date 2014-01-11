@@ -68,11 +68,10 @@ module Rez
 
     describe 'GET index' do
 
-      let(:item) { FactoryGirl.create(:item) }
-      let(:item2) { FactoryGirl.create(:item) }
-
       before do
-        @items = [item, item2]
+        item1 = FactoryGirl.create(:item, rank: 9)
+        item2 = FactoryGirl.create(:item, rank: 1)
+        @items = [item2, item1]
       end
 
       it "responds with 200 OK" do
@@ -80,7 +79,7 @@ module Rez
         response.status.must_equal 200
       end
 
-      it "returns all the Items in JSON format" do
+      it "returns all the Items in rank order in JSON format" do
         get :index, use_route: 'rez'
         serializer = ActiveModel::ArraySerializer.new(@items, each_serializer: ItemSerializer)
         response.body.must_equal({ items: serializer }.to_json)

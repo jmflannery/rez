@@ -14,7 +14,7 @@ module Rez
     end
 
     def index
-      render json: Item.includes([:paragraphs, :bullets])
+      render json: Item.includes([:paragraphs, :bullets]).ranked
     end
 
     def show
