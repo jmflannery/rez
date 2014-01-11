@@ -39,7 +39,7 @@ module Rez
     end
 
     def item_params
-      params.require(:item).permit(:name, :title, :heading)
+      params.require(:item).permit(:name, :title, :heading, :rank, :visible)
     end
   end
 end

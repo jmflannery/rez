@@ -29,6 +29,8 @@ module Rez
           json = JSON.parse(response.body)
           json['item']['title'].must_equal item_attrs[:title]
           json['item']['heading'].must_equal item_attrs[:heading]
+          json['item']['rank'].must_equal item_attrs[:rank]
+          json['item']['visible'].must_equal item_attrs[:visible]
         end
 
         it "returns the created Item in JSON format" do
