@@ -14,7 +14,7 @@ module Rez
     end
 
     def index
-      render json: Item.all
+      render json: Item.includes([:paragraphs, :bullets])
     end
 
     def show
