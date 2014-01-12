@@ -3,6 +3,7 @@ module Rez
 
     before_action :toke, only: [:create, :update, :destroy]
     before_action :set_item, only: [:show, :update, :destroy]
+    before_action :set_resume, only: [:index]
 
     def create
       @item = Item.new(item_params)
@@ -14,7 +15,11 @@ module Rez
     end
 
     def index
-      render json: Item.includes([:paragraphs, :bullets]).ranked
+      if @resume
+        render json: @resume.items.includes([:paragraphs, :bullets]).ranked
+      else
+        render json: Item.includes([:paragraphs, :bullets]).ranked
+      end
     end
 
     def show
@@ -36,6 +41,10 @@ module Rez
     def set_item
       @item = Item.find_by(id: params[:id])
       head :not_found unless @item
+    end
+
+    def set_resume
+      @resume = Resume.find_by(id: params[:resume_id])
     end
 
     def item_params

@@ -6,7 +6,7 @@ module Rez
     validates :name, presence: true
 
     def items
-      Item.where(id: item_ids).to_a
+      Item.where(id: item_ids)
     end
   end
 end
