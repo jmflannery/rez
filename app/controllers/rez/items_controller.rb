@@ -16,9 +16,9 @@ module Rez
 
     def index
       if @resume
-        render json: @resume.items.includes([:paragraphs, :bullets]).ranked
+        render json: @resume.items.includes([:paragraphs, :bullets])
       else
-        render json: Item.includes([:paragraphs, :bullets]).ranked
+        render json: Item.includes([:paragraphs, :bullets])
       end
     end
 
@@ -48,7 +48,7 @@ module Rez
     end
 
     def item_params
-      params.require(:item).permit(:name, :title, :heading, :rank, :visible)
+      params.require(:item).permit(:name, :title, :heading, :visible)
     end
   end
 end

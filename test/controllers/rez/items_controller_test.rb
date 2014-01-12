@@ -29,8 +29,6 @@ module Rez
           json = JSON.parse(response.body)
           json['item']['title'].must_equal item_attrs[:title]
           json['item']['heading'].must_equal item_attrs[:heading]
-          json['item']['rank'].must_equal item_attrs[:rank]
-          json['item']['visible'].must_equal item_attrs[:visible]
         end
 
         it "returns the created Item in JSON format" do
@@ -68,8 +66,8 @@ module Rez
 
     describe 'GET index' do
 
-      let(:item1) { FactoryGirl.create(:item, rank: 9) }
-      let(:item2) { FactoryGirl.create(:item, rank: 1) }
+      let(:item1) { FactoryGirl.create(:item) }
+      let(:item2) { FactoryGirl.create(:item) }
 
       before do
         @items = [item2, item1]
@@ -80,7 +78,7 @@ module Rez
         response.status.must_equal 200
       end
 
-      it "returns all the Items in rank order in JSON format" do
+      it "returns all the Items in JSON format" do
         get :index, use_route: 'rez'
         serializer = ActiveModel::ArraySerializer.new(@items, each_serializer: ItemSerializer)
         response.body.must_equal({ items: serializer }.to_json)
@@ -88,18 +86,18 @@ module Rez
 
       describe "if resume_id is given" do
 
-        let(:item3) { FactoryGirl.create(:item, rank: 5) }
+        let(:item3) { FactoryGirl.create(:item) }
 
         before do
           @resume = FactoryGirl.create(:resume, item_ids: [item1.id, item3.id])
         end
 
-        it "returns only the items for the given resume in rank order" do
+        it "returns only the items for the given resume" do
           get :index, resume_id: @resume.id, use_route: 'rez'
           json = JSON.parse(response.body)
           json['items'].size.must_equal 2
-          json['items'][0]['id'].must_equal item3.id
-          json['items'][1]['id'].must_equal item1.id
+          json['items'][0]['id'].must_equal item1.id
+          json['items'][1]['id'].must_equal item3.id
         end
       end
     end
