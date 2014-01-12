@@ -25,16 +25,14 @@ module Rez
     it "has an array of items ids" do
       i1 = FactoryGirl.create(:item)
       i2 = FactoryGirl.create(:item)
-      subject.item_ids << i1
-      subject.item_ids << i2
-      subject.item_ids.must_equal [i1, i2]
+      subject.item_ids.concat [i1.id, i2.id]
+      subject.item_ids.must_equal [i1.id, i2.id]
     end
 
     it "has an array of Items" do
       i1 = FactoryGirl.create(:item)
       i2 = FactoryGirl.create(:item)
-      subject.item_ids << i1
-      subject.item_ids << i2
+      subject.item_ids.concat [i1.id, i2.id]
       subject.items.must_equal [i1, i2]
     end
   end
