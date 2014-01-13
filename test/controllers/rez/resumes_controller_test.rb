@@ -216,6 +216,35 @@ module Rez
               end
             end
           end
+
+          describe 'updating the Items' do
+
+            let(:item1) { FactoryGirl.create(:item) }
+            let(:item2) { FactoryGirl.create(:item) }
+            let(:update_attrs) {{ item_ids: [item1.id, item2.id], name: 'Fun Resume' }}
+
+            it 'responds with 200 OK' do
+              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              response.status.must_equal 200
+            end
+
+            it 'updates the item_ids' do
+              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              resume.reload.item_ids.must_equal [item1.id, item2.id]
+            end
+
+            it 'does not update invalid item ids' do
+              update_attrs[:item_ids] << 1234
+              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              resume.reload.item_ids.wont_include 1234
+            end
+
+            it 'does not insert duplicate items' do
+              update_attrs[:item_ids] << item1.id
+              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              resume.reload.item_ids.must_equal [item1.id, item2.id]
+            end
+          end
         end
 
         describe "given an invalid resume id" do

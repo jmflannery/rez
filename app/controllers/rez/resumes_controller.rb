@@ -5,6 +5,7 @@ module Rez
     before_action :set_resume, only: [:show, :update, :destroy]
     before_action :update_profile, only: [:update]
     before_action :update_address, only: [:update]
+    before_action :update_items, only: [:update]
 
     def create
       @resume = Resume.new(resume_params)
@@ -66,6 +67,22 @@ module Rez
           render json: error, status: :not_found
         end
         params[:resume].delete(:address_id)
+      end
+    end
+
+    def update_items
+      if params[:resume][:item_ids]
+        changed = false
+        params[:resume][:item_ids].map { |i| i.to_i }.each do |item_id|
+          if Item.exists?(item_id)
+            changed = true
+            @resume.item_ids << item_id unless @resume.item_ids.include?(item_id)
+          end
+        end 
+        if changed
+          @resume.item_ids_will_change!
+          @resume.save
+        end
       end
     end
 
