@@ -72,14 +72,14 @@ module Rez
 
     def update_items
       if params[:resume][:item_ids]
-        changed = false
-        params[:resume][:item_ids].map { |i| i.to_i }.each do |item_id|
+        ids = []
+        params[:resume][:item_ids].uniq.map { |i| i.to_i }.each do |item_id|
           if Item.exists?(item_id)
-            changed = true
-            @resume.item_ids << item_id unless @resume.item_ids.include?(item_id)
+            ids << item_id
           end
         end 
-        if changed
+        unless ids.empty?
+          @resume.item_ids = ids
           @resume.item_ids_will_change!
           @resume.save
         end

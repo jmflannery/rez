@@ -244,6 +244,15 @@ module Rez
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
               resume.reload.item_ids.must_equal [item1.id, item2.id]
             end
+
+            it 'removes items from the resume that are not given in item_ids' do
+              resume.item_ids << item1.id
+              resume.item_ids_will_change!
+              resume.save
+              update_attrs[:item_ids].delete_at(0)
+              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              resume.reload.item_ids.wont_include item1.id
+            end
           end
         end
 
