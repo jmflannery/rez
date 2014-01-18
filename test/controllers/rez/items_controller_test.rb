@@ -99,6 +99,14 @@ module Rez
           json['items'][0]['id'].must_equal item1.id
           json['items'][1]['id'].must_equal item3.id
         end
+
+        describe "resume_id is invalid" do
+
+          it "responds with 404 Not Found" do
+            get :index, resume_id: 'wrong', use_route: 'rez'
+            response.status.must_equal 404
+          end
+        end 
       end
     end
 

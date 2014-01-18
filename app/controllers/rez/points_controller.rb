@@ -1,5 +1,3 @@
-require 'test_helper'
-
 module Rez
   class PointsController < ApplicationController
 

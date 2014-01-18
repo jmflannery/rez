@@ -44,7 +44,10 @@ module Rez
     end
 
     def set_resume
-      @resume = Resume.find_by(id: params[:resume_id])
+      if params[:resume_id]
+        @resume = Resume.find_by(id: params[:resume_id])
+        head :not_found unless @resume
+      end
     end
 
     def item_params
