@@ -72,7 +72,7 @@ module Rez
       end
     end
 
-    describe 'PATCH update' do
+    describe 'PUT update' do
 
       let(:address) { FactoryGirl.create(:address) }
       let(:update_attrs) {{ building_number: '14013', county: 'Los Angeles' }}
@@ -80,13 +80,13 @@ module Rez
       describe "given a valid address id" do
 
         it "updates the address record" do
-          patch :update, id: address, address: update_attrs, use_route: 'rez'
+          put :update, id: address, address: update_attrs, use_route: 'rez'
           address.reload.building_number.must_equal('14013')
           address.county.must_equal('Los Angeles')
         end
 
         it "returns the updated address in JSON format" do
-          patch :update, id: address, address: update_attrs, use_route: 'rez'
+          put :update, id: address, address: update_attrs, use_route: 'rez'
           response.body.must_equal(AddressSerializer.new(address.reload).to_json)
         end
       end
@@ -94,7 +94,7 @@ module Rez
       describe "given an invalid address id" do
 
         it "responds with 404 Not Found" do
-          patch :update, id: -1, address: update_attrs, use_route: 'rez'
+          put :update, id: -1, address: update_attrs, use_route: 'rez'
           response.status.must_equal 404
         end
       end
