@@ -39,9 +39,20 @@ module Rez
 
       let(:address) { FactoryGirl.create(:address) }
 
-      it "gets the requested address as JSON" do
-        get :show, id: address, use_route: 'rez'
-        response.body.must_equal(AddressSerializer.new(address).to_json)
+      describe "given a valid address id" do
+
+        it "gets the requested address as JSON" do
+          get :show, id: address, use_route: 'rez'
+          response.body.must_equal(AddressSerializer.new(address).to_json)
+        end
+      end
+
+      describe "given an invalid address id" do
+
+        it "responds with 404 Not Found" do
+          get :show, id: -1, use_route: 'rez'
+          response.status.must_equal 404
+        end
       end
     end
 
@@ -66,32 +77,54 @@ module Rez
       let(:address) { FactoryGirl.create(:address) }
       let(:update_attrs) {{ building_number: '14013', county: 'Los Angeles' }}
 
-      it "updates the address record" do
-        patch :update, id: address, address: update_attrs, use_route: 'rez'
-        address.reload.building_number.must_equal('14013')
-        address.county.must_equal('Los Angeles')
+      describe "given a valid address id" do
+
+        it "updates the address record" do
+          patch :update, id: address, address: update_attrs, use_route: 'rez'
+          address.reload.building_number.must_equal('14013')
+          address.county.must_equal('Los Angeles')
+        end
+
+        it "returns the updated address in JSON format" do
+          patch :update, id: address, address: update_attrs, use_route: 'rez'
+          response.body.must_equal(AddressSerializer.new(address.reload).to_json)
+        end
       end
 
-      it "returns the updated address in JSON format" do
-        patch :update, id: address, address: update_attrs, use_route: 'rez'
-        response.body.must_equal(AddressSerializer.new(address.reload).to_json)
+      describe "given an invalid address id" do
+
+        it "responds with 404 Not Found" do
+          patch :update, id: -1, address: update_attrs, use_route: 'rez'
+          response.status.must_equal 404
+        end
       end
     end
 
     describe "DELETE destroy" do
 
-      before do @address = FactoryGirl.create(:address) end
-      
-      it "destroys the address" do
-        assert_difference('Address.count', -1) do
-          delete :destroy, id: @address, use_route: 'rez'
-        end
-      end 
+      describe "given a valid address id" do
 
-      it "returns 204 No Content with empty body" do
-        delete :destroy, id: @address, use_route: 'rez'
-        response.status.must_equal 204
-        response.body.must_equal ''
+        before do @address = FactoryGirl.create(:address) end
+        
+        it "destroys the address" do
+          assert_difference('Address.count', -1) do
+            delete :destroy, id: @address, use_route: 'rez'
+          end
+        end 
+
+        it "returns 204 No Content with empty body" do
+          delete :destroy, id: @address, use_route: 'rez'
+          response.status.must_equal 204
+          response.body.must_equal ''
+        end
+      end
+
+      describe "given an invalid address id" do
+
+        it "responds with 404 Not Found" do
+          delete :destroy, id: -1, use_route: 'rez'
+          response.status.must_equal 404
+        end
       end
     end
   end

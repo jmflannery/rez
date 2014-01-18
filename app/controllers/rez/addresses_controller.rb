@@ -1,13 +1,14 @@
 module Rez
   class AddressesController < ApplicationController
 
+    before_action :set_address, only: [:show, :update, :destroy]
+
     def create
       @address = Address.create(address_params)
       render json: @address, status: :created
     end
 
     def show
-      @address = Address.find(params[:id])
       render json: @address
     end
 
@@ -17,13 +18,11 @@ module Rez
     end
 
     def update
-      @address = Address.find(params[:id])
-      @address.update_attributes(address_params)
+      @address.update(address_params)
       render json: @address
     end
 
     def destroy
-      @address = Address.find(params[:id])
       @address.destroy
       head :no_content
     end
@@ -33,6 +32,11 @@ module Rez
     end
 
     private
+
+    def set_address
+      @address = Address.find_by(id: params[:id])
+      head :not_found unless @address
+    end
 
     def address_params
       params.require(:address).permit(AddressesController.permitted_params)
