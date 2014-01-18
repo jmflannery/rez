@@ -2,6 +2,7 @@ module Rez
   class ProfilesController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
+    before_action :set_resume, only: [:show]
     before_action :set_profile, only: [:show, :update, :destroy]
 
     def create
@@ -14,8 +15,7 @@ module Rez
     end
 
     def index
-      @profiles = Profile.all
-      render json: @profiles
+      render json: Profile.all
     end
 
     def update
@@ -30,8 +30,19 @@ module Rez
 
     private
 
+    def set_resume
+      if params[:resume_id]
+        @resume = Resume.find_by(id: params[:resume_id])
+        head :not_found unless @resume
+      end
+    end
+
     def set_profile
-      @profile = Profile.find_by(id: params[:id])
+      if @resume
+        @profile = @resume.profile
+      else
+        @profile = Profile.find_by(id: params[:id])
+      end
       head :not_found unless @profile
     end
 

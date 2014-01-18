@@ -45,17 +45,56 @@ module Rez
 
     describe "GET show" do
 
-      let(:profile) { FactoryGirl.create(:profile) }
+      describe 'given a valid profile_id' do 
 
-      it "gets the requested profile as JSON" do
-        get :show, id: profile, use_route: 'rez'
-        response.body.must_equal(ProfileSerializer.new(profile).to_json)
+        before do
+          @profile = FactoryGirl.create(:profile)
+        end
+
+        it "gets the requested profile as JSON" do
+          get :show, id: @profile, use_route: 'rez'
+          response.body.must_equal(ProfileSerializer.new(@profile).to_json)
+        end
       end
 
       describe "given an invalid profile id" do
 
         it "responds with 404 Not Found" do
-          get :show, id: 'invalid', use_route: 'rez'
+          get :show, id: -1, use_route: 'rez'
+          response.status.must_equal 404
+        end
+      end
+
+      describe "given a valid resume_id" do
+
+        let(:profile) { FactoryGirl.create(:profile) }
+
+        before do
+          @resume = FactoryGirl.create(:resume, profile: profile)
+        end
+
+        it "returns the profile for the given resume in JSON format" do
+          get :show, resume_id: @resume, use_route: 'rez'
+          response.body.must_equal(ProfileSerializer.new(profile).to_json)
+        end
+      end
+
+      describe 'given a resume that has no profile' do
+
+        before do
+          @resume = FactoryGirl.create(:resume)
+        end
+
+        it "responds with 404 Not Found" do
+          get :show, resume_id: @resume, use_route: 'rez'
+          response.status.must_equal 404
+        end
+      end
+
+      describe "given an invalid resume_id" do
+
+        it "responds with 404 Not Found" do
+          get :show, resume_id: -1, use_route: 'rez'
           response.status.must_equal 404
         end
       end
@@ -63,10 +102,10 @@ module Rez
 
     describe "GET index" do
 
-      let(:p1) { FactoryGirl.create(:profile) }
-      let(:p2) { FactoryGirl.create(:profile) }
+      let(:profile1) { FactoryGirl.create(:profile) }
+      let(:profile2) { FactoryGirl.create(:profile) }
 
-      before do @profiles = [p1, p2] end
+      before do @profiles = [profile1, profile2] end
 
       it "responds with 200 OK" do
         get :index, use_route: 'rez'
