@@ -1,7 +1,7 @@
 module Rez
   class PointsController < ApplicationController
 
-    before_action :toke
+    before_action :toke, only: [:create, :update, :destroy]
     before_action :set_type, only: [:index]
     before_action :set_item, only: [:index]
     before_action :set_points, only: [:index]

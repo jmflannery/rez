@@ -61,33 +61,73 @@ module Rez
         @points = [paragraph, bullet]
       end
 
-      describe "with a valid Toke key in the header" do
+      it "responds with 200 OK" do
+        get :index, use_route: 'rez'
+        response.status.must_equal 200
+      end
 
-        let(:current_user) { FactoryGirl.create(:user) }
-        let(:token) { FactoryGirl.create(:token, user: current_user) }
-        before do request.headers['X-Toke-Key'] = token.key end
+      it "returns all the Points in JSON format" do
+        get :index, use_route: 'rez'
+        serializer = ActiveModel::ArraySerializer.new(@points, each_serializer: PointSerializer)
+        response.body.must_equal({ points: serializer }.to_json)
+      end
 
-        it "responds with 200 OK" do
-          get :index, use_route: 'rez'
-          response.status.must_equal 200
+      describe "when type=bullet is given" do
+
+        let(:bullet2) { FactoryGirl.create(:bullet) }
+
+        before do
+          @bullets = [bullet, bullet2]
         end
 
-        it "returns all the Points in JSON format" do
-          get :index, use_route: 'rez'
-          serializer = ActiveModel::ArraySerializer.new(@points, each_serializer: PointSerializer)
+        it "responds with all bullet type Points in JSON format" do
+          get :index, type: 'bullet', use_route: 'rez'
+          serializer = ActiveModel::ArraySerializer.new(@bullets, each_serializer: PointSerializer)
+          response.body.must_equal({ points: serializer }.to_json)
+        end
+      end
+
+      describe "when type=paragraph is given" do
+
+        let(:paragraph2) { FactoryGirl.create(:paragraph) }
+
+        before do
+          @paragraphs = [paragraph, paragraph2]
+        end
+
+        it "responds with all paragraph type Points in JSON format" do
+          get :index, type: 'paragraph', use_route: 'rez'
+          serializer = ActiveModel::ArraySerializer.new(@paragraphs, each_serializer: PointSerializer)
+          response.body.must_equal({ points: serializer }.to_json)
+        end
+      end
+
+      describe 'given an item_id' do
+
+        let(:item) { FactoryGirl.create(:item) }
+        let(:paragraph2) { FactoryGirl.create(:paragraph, item: item) }
+        let(:bullet2) { FactoryGirl.create(:bullet, item: item) }
+
+        before do
+          @item_points = [bullet2, paragraph2]
+        end
+
+        it "returns all the Item's Points in JSON format" do
+          get :index, item_id: item.id, use_route: 'rez'
+          serializer = ActiveModel::ArraySerializer.new(@item_points, each_serializer: PointSerializer)
           response.body.must_equal({ points: serializer }.to_json)
         end
 
         describe "when type=bullet is given" do
 
-          let(:bullet2) { FactoryGirl.create(:bullet) }
+          let(:bullet3) { FactoryGirl.create(:bullet, item: item) }
 
           before do
-            @bullets = [bullet, bullet2]
+            @bullets = [bullet2, bullet3]
           end
 
-          it "responds with all bullet type Points in JSON format" do
-            get :index, type: 'bullet', use_route: 'rez'
+          it "returns all the Item's bullet type Points in JSON format" do
+            get :index, item_id: item.id, type: 'bullet', use_route: 'rez'
             serializer = ActiveModel::ArraySerializer.new(@bullets, each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
@@ -95,75 +135,17 @@ module Rez
 
         describe "when type=paragraph is given" do
 
-          let(:paragraph2) { FactoryGirl.create(:paragraph) }
+          let(:paragraph3) { FactoryGirl.create(:paragraph, item: item) }
 
           before do
-            @paragraphs = [paragraph, paragraph2]
+            @paragraphs = [paragraph2, paragraph3]
           end
 
-          it "responds with all paragraph type Points in JSON format" do
-            get :index, type: 'paragraph', use_route: 'rez'
+          it "returns all the Item's paragraphs type Points in JSON format" do
+            get :index, item_id: item.id, type: 'paragraph', use_route: 'rez'
             serializer = ActiveModel::ArraySerializer.new(@paragraphs, each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
-        end
-
-        describe 'given an item_id' do
-
-          let(:item) { FactoryGirl.create(:item) }
-          let(:paragraph2) { FactoryGirl.create(:paragraph, item: item) }
-          let(:bullet2) { FactoryGirl.create(:bullet, item: item) }
-
-          before do
-            @item_points = [bullet2, paragraph2]
-          end
-
-          it "returns all the Item's Points in JSON format" do
-            get :index, item_id: item.id, use_route: 'rez'
-            serializer = ActiveModel::ArraySerializer.new(@item_points, each_serializer: PointSerializer)
-            response.body.must_equal({ points: serializer }.to_json)
-          end
-
-          describe "when type=bullet is given" do
-
-            let(:bullet3) { FactoryGirl.create(:bullet, item: item) }
-
-            before do
-              @bullets = [bullet2, bullet3]
-            end
-
-            it "returns all the Item's bullet type Points in JSON format" do
-              get :index, item_id: item.id, type: 'bullet', use_route: 'rez'
-              serializer = ActiveModel::ArraySerializer.new(@bullets, each_serializer: PointSerializer)
-              response.body.must_equal({ points: serializer }.to_json)
-            end
-          end
-
-          describe "when type=paragraph is given" do
-
-            let(:paragraph3) { FactoryGirl.create(:paragraph, item: item) }
-
-            before do
-              @paragraphs = [paragraph2, paragraph3]
-            end
-
-            it "returns all the Item's paragraphs type Points in JSON format" do
-              get :index, item_id: item.id, type: 'paragraph', use_route: 'rez'
-              serializer = ActiveModel::ArraySerializer.new(@paragraphs, each_serializer: PointSerializer)
-              response.body.must_equal({ points: serializer }.to_json)
-            end
-          end
-        end
-      end
-
-      describe "without a valid Toke key in the header" do
-
-        let(:token) { FactoryGirl.create(:token) }
-        before do request.headers['X-Toke-Key'] = token.key end
-
-        it "responds with 401 Unauthorized" do
-          get :index, use_route: 'rez'
-          response.status.must_equal 401
         end
       end
     end
@@ -172,42 +154,24 @@ module Rez
 
       let(:point) { FactoryGirl.create(:paragraph) }
 
-      describe "with a valid Toke key in the header" do
+      describe "given a valid Point id" do
 
-        let(:current_user) { FactoryGirl.create(:user) }
-        let(:token) { FactoryGirl.create(:token, user: current_user) }
-        before do request.headers['X-Toke-Key'] = token.key end
-
-        describe "given a valid Point id" do
-
-          it "responds with 200 OK" do
-            get :show, id: point, use_route: 'rez'
-            response.status.must_equal 200
-          end
-
-          it "responds with the requested Point in JSON format" do
-            get :show, id: point, use_route: 'rez'
-            response.body.must_equal(PointSerializer.new(point).to_json)
-          end
+        it "responds with 200 OK" do
+          get :show, id: point, use_route: 'rez'
+          response.status.must_equal 200
         end
 
-        describe "given an invalid Point id" do
-
-          it "responds with 404 Not Found" do
-            get :show, id: 'wrong', use_route: 'rez'
-            response.status.must_equal 404
-          end
+        it "responds with the requested Point in JSON format" do
+          get :show, id: point, use_route: 'rez'
+          response.body.must_equal(PointSerializer.new(point).to_json)
         end
       end
 
-      describe "without a valid Toke key in the header" do
+      describe "given an invalid Point id" do
 
-        let(:token) { FactoryGirl.create(:token) }
-        before do request.headers['X-Toke-Key'] = token.key end
-
-        it "responds with 401 Unauthorized" do
-          get :show, id: point, use_route: 'rez'
-          response.status.must_equal 401
+        it "responds with 404 Not Found" do
+          get :show, id: 'wrong', use_route: 'rez'
+          response.status.must_equal 404
         end
       end
     end
