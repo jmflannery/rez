@@ -78,6 +78,36 @@ module Rez
           response.body.must_equal({ points: serializer }.to_json)
         end
 
+        describe "when type=bullet is given" do
+
+          let(:bullet2) { FactoryGirl.create(:bullet) }
+
+          before do
+            @bullets = [bullet, bullet2]
+          end
+
+          it "responds with all bullet type Points in JSON format" do
+            get :index, type: 'bullet', use_route: 'rez'
+            serializer = ActiveModel::ArraySerializer.new(@bullets, each_serializer: PointSerializer)
+            response.body.must_equal({ points: serializer }.to_json)
+          end
+        end
+
+        describe "when type=paragraph is given" do
+
+          let(:paragraph2) { FactoryGirl.create(:paragraph) }
+
+          before do
+            @paragraphs = [paragraph, paragraph2]
+          end
+
+          it "responds with all paragraph type Points in JSON format" do
+            get :index, type: 'paragraph', use_route: 'rez'
+            serializer = ActiveModel::ArraySerializer.new(@paragraphs, each_serializer: PointSerializer)
+            response.body.must_equal({ points: serializer }.to_json)
+          end
+        end
+
         describe 'given an item_id' do
 
           let(:item) { FactoryGirl.create(:item) }
@@ -94,7 +124,7 @@ module Rez
             response.body.must_equal({ points: serializer }.to_json)
           end
 
-          describe "given a type=bullet is given" do
+          describe "when type=bullet is given" do
 
             let(:bullet3) { FactoryGirl.create(:bullet, item: item) }
 
@@ -109,7 +139,7 @@ module Rez
             end
           end
 
-          describe "given a type=paragraph is given" do
+          describe "when type=paragraph is given" do
 
             let(:paragraph3) { FactoryGirl.create(:paragraph, item: item) }
 
