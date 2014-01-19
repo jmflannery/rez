@@ -2,6 +2,9 @@ module Rez
   class PointsController < ApplicationController
 
     before_action :toke
+    before_action :set_type, only: [:index]
+    before_action :set_item, only: [:index]
+    before_action :set_points, only: [:index]
     before_action :set_point, only: [:show, :update, :destroy]
 
     def create
@@ -14,7 +17,7 @@ module Rez
     end
 
     def index
-      render json: Point.all
+      render json: @points
     end
 
     def show
@@ -35,6 +38,29 @@ module Rez
     end
 
     private
+
+    def set_item
+      if params[:item_id]
+        @item = Item.find_by(id: params[:item_id])
+      end
+    end
+
+    def set_type
+      if params[:type]
+        if params[:type] == 'bullet'
+          @type = :bullets
+        elsif params[:type] = 'paragraph'
+          @type = :paragraphs
+        end
+      end
+    end
+
+    def set_points
+      @points = @item.send(@type) if @type && @item
+      @points = Point.send(@type) if @type && !@item
+      @points = @item.points if !@type && @item
+      @points = Point.all if !@type && !@item
+    end
 
     def set_point
       @point = Point.find_by(id: params[:id])
