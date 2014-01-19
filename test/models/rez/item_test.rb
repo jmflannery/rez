@@ -24,6 +24,13 @@ module Rez
       subject.wont_be :valid?
     end
 
+    it 'has many Points' do
+      p = FactoryGirl.create(:paragraph, item: subject)
+      p2 = FactoryGirl.create(:paragraph, item: subject)
+      b = FactoryGirl.create(:bullet, item: subject)
+      subject.points.must_equal [p, p2, b]
+    end
+
     it 'has many Paragraphs' do
       p = FactoryGirl.create(:paragraph, item: subject)
       p2 = FactoryGirl.create(:paragraph, item: subject)
