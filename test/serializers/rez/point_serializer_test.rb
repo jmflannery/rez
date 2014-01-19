@@ -9,7 +9,7 @@ module Rez
 
     it 'serializes the Point to JSON' do
       serialized = PointSerializer.new(point).to_json
-      serialized.must_equal %Q({"point":{"id":#{point.id},"text":"#{point.text}","rank":#{point.rank},"item_id":#{item.id}}})
+      serialized.must_equal %Q({"point":{"id":#{point.id},"text":"#{point.text}","rank":#{point.rank},"item_id":#{item.id},"point_type":"paragraph"}})
     end
   end
 end
