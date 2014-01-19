@@ -54,6 +54,40 @@ module Rez
           response.status.must_equal 404
         end
       end
+
+      describe "given a valid resume_id" do
+
+        let(:address) { FactoryGirl.create(:address) }
+
+        before do
+          @resume = FactoryGirl.create(:resume, address: address)
+        end
+
+        it "returns the address for the given resume in JSON format" do
+          get :show, resume_id: @resume, use_route: 'rez'
+          response.body.must_equal(AddressSerializer.new(address).to_json)
+        end
+      end
+
+      describe 'given a resume that has no address' do
+
+        before do
+          @resume = FactoryGirl.create(:resume)
+        end
+
+        it "responds with 404 Not Found" do
+          get :show, resume_id: @resume, use_route: 'rez'
+          response.status.must_equal 404
+        end
+      end
+
+      describe "given an invalid resume_id" do
+
+        it "responds with 404 Not Found" do
+          get :show, resume_id: -1, use_route: 'rez'
+          response.status.must_equal 404
+        end
+      end
     end
 
     describe "GET index" do

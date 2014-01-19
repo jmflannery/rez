@@ -1,6 +1,7 @@
 module Rez
   class AddressesController < ApplicationController
 
+    before_action :set_resume, only: [:show]
     before_action :set_address, only: [:show, :update, :destroy]
 
     def create
@@ -33,8 +34,18 @@ module Rez
 
     private
 
+    def set_resume
+      if params[:resume_id]
+        @resume = Resume.find_by(id: params[:resume_id])
+      end
+    end
+
     def set_address
-      @address = Address.find_by(id: params[:id])
+      if @resume
+        @address = @resume.address
+      else
+        @address = Address.find_by(id: params[:id])
+      end
       head :not_found unless @address
     end
 
