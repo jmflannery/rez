@@ -16,7 +16,7 @@ module Rez
     end
 
     def index
-      render json: @items.includes([:paragraphs, :bullets])
+      render json: @items
     end
 
     def show
@@ -49,9 +49,9 @@ module Rez
 
     def set_items
       if @resume
-        @items = @resume.items
+        @items = @resume.items.includes([:paragraphs, :bullets])
       else
-        @items = Item.all
+        @items = Item.includes([:paragraphs, :bullets])
       end
     end
 
