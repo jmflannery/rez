@@ -27,7 +27,7 @@ module Rez
         it "responds with the created Point in JSON format" do
           post :create, point: attrs, use_route: 'rez'
           json = JSON.parse(response.body)
-          json['text'].must_equal attrs['text']
+          json['point']['text'].must_equal attrs[:text]
         end
 
         describe 'given an item_id' do
@@ -40,6 +40,15 @@ module Rez
             post :create, item_id: @item.id, point: attrs, use_route: 'rez'
             json = JSON.parse(response.body)
             json['point']['item_id'].must_equal @item.id
+          end
+        end
+
+        describe "given a point type" do
+
+          it "creates a Point with the specified type" do
+            post :create, type: 'bullet', point: attrs, use_route: 'rez'
+            json = JSON.parse(response.body)
+            json['point']['point_type'].must_equal 'bullet'
           end
         end
 

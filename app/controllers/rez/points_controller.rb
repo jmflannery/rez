@@ -2,7 +2,7 @@ module Rez
   class PointsController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
-    before_action :set_type, only: [:index]
+    before_action :set_type, only: [:create, :index]
     before_action :set_item, only: [:create, :index]
     before_action :set_points, only: [:index]
     before_action :set_point, only: [:show, :update, :destroy]
@@ -10,6 +10,7 @@ module Rez
     def create
       point = Point.new(point_params)
       point.item = @item if @item
+      point.point_type = @type.to_s.chomp('s') if @type
       if point.save
         render json: point, status: :created
       else
