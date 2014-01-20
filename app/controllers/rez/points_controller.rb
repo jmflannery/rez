@@ -10,7 +10,7 @@ module Rez
     def create
       point = Point.new(point_params)
       point.item = @item if @item
-      point.point_type = @type.to_s.chomp('s') if @type
+      point.point_type = @type if @type
       if point.save
         render json: point, status: :created
       else
@@ -50,16 +50,17 @@ module Rez
     def set_type
       if params[:type]
         if params[:type] == 'bullet'
-          @type = :bullets
+          @type = 'bullet'
         elsif params[:type] = 'paragraph'
-          @type = :paragraphs
+          @type = 'paragraph'
         end
       end
     end
 
     def set_points
-      @points = @item.send(@type) if @type && @item
-      @points = Point.send(@type) if @type && !@item
+      association_name = "#{@type}s"
+      @points = @item.send(association_name) if @type && @item
+      @points = Point.send(association_name) if @type && !@item
       @points = @item.points if !@type && @item
       @points = Point.all if !@type && !@item
     end
