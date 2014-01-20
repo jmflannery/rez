@@ -24,6 +24,25 @@ module Rez
           end
         end
 
+        it "responds with the created Point in JSON format" do
+          post :create, point: attrs, use_route: 'rez'
+          json = JSON.parse(response.body)
+          json['text'].must_equal attrs['text']
+        end
+
+        describe 'given an item_id' do
+
+          before do
+            @item = FactoryGirl.create(:item)
+          end
+
+          it "creates a Point with the given item_id" do
+            post :create, item_id: @item.id, point: attrs, use_route: 'rez'
+            json = JSON.parse(response.body)
+            json['point']['item_id'].must_equal @item.id
+          end
+        end
+
         describe "given an invalid point_type" do
 
           let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }

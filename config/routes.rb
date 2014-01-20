@@ -7,7 +7,7 @@ Rez::Engine.routes.draw do
   resources :profiles, only: [:create, :index, :show, :update, :destroy]
   resources :addresses, only: [:create, :index, :show, :update, :destroy]
   resources :items, only: [:create, :index, :show, :update, :destroy] do
-    resources :points, only: [:index]
+    resources :points, only: [:create, :index]
   end
   resources :points, only: [:create, :index, :show, :update, :destroy]
 end

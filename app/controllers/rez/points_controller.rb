@@ -3,12 +3,13 @@ module Rez
 
     before_action :toke, only: [:create, :update, :destroy]
     before_action :set_type, only: [:index]
-    before_action :set_item, only: [:index]
+    before_action :set_item, only: [:create, :index]
     before_action :set_points, only: [:index]
     before_action :set_point, only: [:show, :update, :destroy]
 
     def create
       point = Point.new(point_params)
+      point.item = @item if @item
       if point.save
         render json: point, status: :created
       else
