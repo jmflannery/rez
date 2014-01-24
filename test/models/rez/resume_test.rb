@@ -3,37 +3,36 @@ require 'test_helper'
 module Rez
   describe Resume do
 
-    let(:attrs) {{
-      name: 'My Resume'
-    }}
+    let(:attrs) {{ name: 'My Resume' }}
 
     let(:subject) { Resume.new(attrs) }
 
-    it "creates a Resume given valid attributes" do
-      subject.must_be :valid?
-    end
+    let(:item1) { FactoryGirl.create(:item) }
+    let(:item2) { FactoryGirl.create(:item) }
 
     it "has a valid factory" do
       FactoryGirl.build(:resume).must_be :valid?
     end
 
-    it "is invalid without a name" do
-      subject.name = ''
-      subject.wont_be :valid?
+    it "has an initially empty item_id array" do
+      subject.item_ids.must_equal []
     end
 
-    it "has an array of items ids" do
-      i1 = FactoryGirl.create(:item)
-      i2 = FactoryGirl.create(:item)
-      subject.item_ids.concat [i1.id, i2.id]
-      subject.item_ids.must_equal [i1.id, i2.id]
+    it "can add item_ids to it's item_id array" do
+      subject.item_ids << 3 << 22 << 101
+      subject.item_ids.must_equal [3, 22, 101]
     end
 
-    it "has an array of Items" do
-      i1 = FactoryGirl.create(:item)
-      i2 = FactoryGirl.create(:item)
-      subject.item_ids.concat [i1.id, i2.id]
-      subject.items.must_equal [i1, i2]
+    it "returns an array of all items in the item_id array" do
+      subject.item_ids << item1.id << item2.id
+      subject.items.must_equal [item1, item2]
+    end
+
+    it "can add item objects" do
+      subject.add_item(item1)
+      subject.add_item(item2)
+      subject.items.must_equal [item1, item2]
+      subject.item_ids.must_equal [item1.id, item2.id]
     end
   end
 end
