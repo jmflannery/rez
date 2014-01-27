@@ -11,24 +11,36 @@ module Rez
 
     let(:subject) { Item.new(attrs) }
 
-    it 'creates an Item given valid attributes' do
-      subject.must_be :valid?
-    end
+    let(:bullet1) { FactoryGirl.create(:bullet) }
+    let(:bullet2) { FactoryGirl.create(:bullet) }
+    let(:paragraph1) { FactoryGirl.create(:paragraph) }
+    let(:paragraph2) { FactoryGirl.create(:paragraph) }
 
     it 'has a valid Factory' do
       FactoryGirl.build(:item).must_be :valid?
     end
 
-    it 'is invalid without a name' do
-      subject.name = ''
-      subject.wont_be :valid?
+    it "has an initially empty bullet_ids array" do
+      subject.bullet_ids.must_equal []
     end
 
-    it 'has many Points' do
-      p = FactoryGirl.create(:paragraph, item: subject)
-      p2 = FactoryGirl.create(:paragraph, item: subject)
-      b = FactoryGirl.create(:bullet, item: subject)
-      subject.points.must_equal [p, p2, b]
+    it "returns an Active Record Relation with all Bullets in the bullet_id array" do
+      subject.bullet_ids << bullet1.id << bullet2.id
+      subject.bullets.must_equal [bullet1, bullet2]
+    end
+
+    it "can add only 'bullet' type Points with add_bullet method" do
+      subject.add_bullet(bullet1)
+      subject.add_bullet(bullet2)
+      subject.add_bullet(paragraph1)
+      subject.add_bullet(nil)
+      subject.bullets.must_equal [bullet1, bullet2]
+      subject.bullet_ids.must_equal [bullet1.id, bullet2.id]
+    end
+
+    it "returns an Active Record Relation with all the Item's Points (Bullets and Paragraphs)" do
+      subject.bullet_ids << bullet1.id << bullet2.id
+      subject.points.must_equal [bullet1, bullet2]
     end
 
     it 'has many Paragraphs' do
@@ -36,13 +48,6 @@ module Rez
       p2 = FactoryGirl.create(:paragraph, item: subject)
       b = FactoryGirl.create(:bullet, item: subject)
       subject.paragraphs.must_equal [p, p2]
-    end
-
-    it 'has many Bullets' do
-      b = FactoryGirl.create(:bullet, item: subject)
-      b2 = FactoryGirl.create(:bullet, item: subject)
-      p = FactoryGirl.create(:paragraph, item: subject)
-      subject.bullets.must_equal [b, b2]
     end
   end
 end
