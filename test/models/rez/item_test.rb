@@ -47,6 +47,15 @@ module Rez
       subject.bullet_ids.must_equal [bullet1.id, bullet2.id]
     end
 
+    it "can add only 'paragraph' type Points with add_paragraph method" do
+      subject.add_paragraph(paragraph1)
+      subject.add_paragraph(paragraph2)
+      subject.add_paragraph(bullet1)
+      subject.add_paragraph(nil)
+      subject.paragraph_ids.must_equal [paragraph1.id, paragraph2.id]
+      subject.paragraphs.must_equal [paragraph1, paragraph2]
+    end
+
     it "returns an Active Record Relation with all the Item's Points (Bullets and Paragraphs)" do
       subject.bullet_ids << bullet1.id << bullet2.id
       subject.points.must_equal [bullet1, bullet2]

@@ -21,8 +21,20 @@ module Rez
       end
     end
 
+    def add_paragraph(paragraph)
+      if paragraph && paragraph.point_type == 'paragraph'
+        paragraph_ids << paragraph.id
+        save_paragraph_ids!
+      end
+    end
+
     def save_bullets_ids!
       bullet_ids_will_change!
+      save
+    end
+
+    def save_paragraph_ids!
+      paragraph_ids_will_change!
       save
     end
   end
