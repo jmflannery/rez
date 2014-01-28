@@ -9,9 +9,17 @@ module Rez
 
     def create
       point = Point.new(point_params)
-      point.item = @item if @item
       point.point_type = @type if @type
       if point.save
+        if @item
+          if @type == 'bullet'
+            @item.add_bullet(point)
+          elsif @type == 'paragraph'
+            @item.paragraph_ids << point.id
+            @item.paragraph_ids_will_change!
+            @item.save
+          end
+        end
         render json: point, status: :created
       else
         render json: point.errors, status: :bad_request

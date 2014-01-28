@@ -24,9 +24,18 @@ module Rez
       subject.bullet_ids.must_equal []
     end
 
-    it "returns an Active Record Relation with all Bullets in the bullet_id array" do
+    it "has an initially empty paragraph_ids array" do
+      subject.paragraph_ids.must_equal []
+    end
+
+    it "returns an Active Record Relation with all Bullets in bullet_ids" do
       subject.bullet_ids << bullet1.id << bullet2.id
       subject.bullets.must_equal [bullet1, bullet2]
+    end
+
+    it "returns an Active Record Relation with all Paragraphs in paragraphs_ids" do
+      subject.paragraph_ids << paragraph1.id << paragraph2.id
+      subject.paragraphs.must_equal [paragraph1, paragraph2]
     end
 
     it "can add only 'bullet' type Points with add_bullet method" do
@@ -41,13 +50,6 @@ module Rez
     it "returns an Active Record Relation with all the Item's Points (Bullets and Paragraphs)" do
       subject.bullet_ids << bullet1.id << bullet2.id
       subject.points.must_equal [bullet1, bullet2]
-    end
-
-    it 'has many Paragraphs' do
-      p = FactoryGirl.create(:paragraph, item: subject)
-      p2 = FactoryGirl.create(:paragraph, item: subject)
-      b = FactoryGirl.create(:bullet, item: subject)
-      subject.paragraphs.must_equal [p, p2]
     end
   end
 end

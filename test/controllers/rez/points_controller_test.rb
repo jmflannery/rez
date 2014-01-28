@@ -32,14 +32,37 @@ module Rez
 
         describe 'given an item_id' do
 
-          before do
-            @item = FactoryGirl.create(:item)
+          let(:item) { FactoryGirl.create(:item) }
+
+          it "will not add the Point to the Item if the Point has no type" do
+            post :create, item_id: item.id, point: attrs, use_route: 'rez'
+            json = JSON.parse(response.body)
+            item.bullet_ids.wont_include json['point']['id']
           end
 
-          it "creates a Point with the given item_id" do
-            post :create, item_id: @item.id, point: attrs, use_route: 'rez'
-            json = JSON.parse(response.body)
-            json['point']['item_id'].must_equal @item.id
+          describe "given a point type" do
+
+            it "creates a Point with the specified type and adds it to the Item" do
+              post :create, item_id: item.id, type: 'bullet', point: attrs, use_route: 'rez'
+              json = JSON.parse(response.body)
+              json['point']['point_type'].must_equal 'bullet'
+              item.reload.bullet_ids.must_include json['point']['id']
+            end
+          end
+
+          describe "given an invalid point_type" do
+
+            let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }
+
+            it "responds with 400 Bad Request" do
+              post :create, point: attrs, use_route: 'rez'
+              response.status.must_equal 400
+            end
+
+            it "responds with an error message" do
+              post :create, point: attrs, use_route: 'rez'
+              response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
+            end
           end
         end
 

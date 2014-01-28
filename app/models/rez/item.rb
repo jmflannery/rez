@@ -1,11 +1,13 @@
 module Rez
   class Item < ActiveRecord::Base
-    has_many :paragraphs, -> { where point_type: 'paragraph' }, class_name: 'Point'
-
     validates :name, presence: true
 
     def bullets
       Point.where(id: bullet_ids)
+    end
+
+    def paragraphs
+      Point.where(id: paragraph_ids)
     end
 
     def points

@@ -49,9 +49,9 @@ module Rez
 
     def set_items
       if @resume
-        @items = @resume.items.includes([:paragraphs])
+        @items = @resume.items
       else
-        @items = Item.includes([:paragraphs])
+        @items = Item.all
       end
     end
 

@@ -35,12 +35,6 @@ module Rez
       Point.new(point_type: 'other', text: 'Other type').wont_be :valid?
     end
 
-    it 'belongs to Item' do
-      item = FactoryGirl.create(:item)
-      bullet.update(item_id: item.id)
-      bullet.item.must_equal item
-    end
-
     describe 'scope' do
 
       before do
