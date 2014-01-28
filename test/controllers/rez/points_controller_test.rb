@@ -133,45 +133,44 @@ module Rez
       describe 'given an item_id' do
 
         let(:item) { FactoryGirl.create(:item) }
-        let(:paragraph2) { FactoryGirl.create(:paragraph, item: item) }
-        let(:bullet2) { FactoryGirl.create(:bullet, item: item) }
+        let(:paragraph2) { FactoryGirl.create(:paragraph) }
+        let(:bullet2) { FactoryGirl.create(:bullet) }
+        let(:item_points) { [bullet2] }
 
-        before do
-          @item_points = [bullet2, paragraph2]
-        end
+        before do item.add_bullet(bullet2) end
 
         it "returns all the Item's Points in JSON format" do
           get :index, item_id: item.id, use_route: 'rez'
-          serializer = ActiveModel::ArraySerializer.new(@item_points, each_serializer: PointSerializer)
+          serializer = ActiveModel::ArraySerializer.new(item_points, each_serializer: PointSerializer)
           response.body.must_equal({ points: serializer }.to_json)
         end
 
         describe "when type=bullet is given" do
 
-          let(:bullet3) { FactoryGirl.create(:bullet, item: item) }
+          let(:bullet3) { FactoryGirl.create(:bullet) }
+          let(:bullets) { [bullet2, bullet3] }
+          let(:item_points) { [bullet2, bullet3] }
 
           before do
-            @bullets = [bullet2, bullet3]
+            item.add_bullet(bullet2)
+            item.add_bullet(bullet3)
           end
 
           it "returns all the Item's bullet type Points in JSON format" do
             get :index, item_id: item.id, type: 'bullet', use_route: 'rez'
-            serializer = ActiveModel::ArraySerializer.new(@bullets, each_serializer: PointSerializer)
+            serializer = ActiveModel::ArraySerializer.new(bullets, each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
         end
 
         describe "when type=paragraph is given" do
 
-          let(:paragraph3) { FactoryGirl.create(:paragraph, item: item) }
-
-          before do
-            @paragraphs = [paragraph2, paragraph3]
-          end
+          let(:paragraph3) { FactoryGirl.create(:paragraph) }
+          let(:paragraphs) { [] }
 
           it "returns all the Item's paragraphs type Points in JSON format" do
             get :index, item_id: item.id, type: 'paragraph', use_route: 'rez'
-            serializer = ActiveModel::ArraySerializer.new(@paragraphs, each_serializer: PointSerializer)
+            serializer = ActiveModel::ArraySerializer.new(paragraphs, each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
         end
