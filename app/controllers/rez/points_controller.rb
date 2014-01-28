@@ -15,9 +15,7 @@ module Rez
           if @type == 'bullet'
             @item.add_bullet(point)
           elsif @type == 'paragraph'
-            @item.paragraph_ids << point.id
-            @item.paragraph_ids_will_change!
-            @item.save
+            @item.add_paragraph(point)
           end
         end
         render json: point, status: :created

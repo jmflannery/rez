@@ -10,9 +10,7 @@ module Rez
 
     before do
       item.add_bullet(bullet)
-      item.paragraph_ids << paragraph.id
-      item.paragraph_ids_will_change!
-      item.save
+      item.add_paragraph(paragraph)
     end
 
     it 'serializes an Item to JSON' do
