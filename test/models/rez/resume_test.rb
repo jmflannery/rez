@@ -19,7 +19,8 @@ module Rez
     end
 
     it "can add Items" do
-      subject.items.must_equal [item1, item2]
+      subject.add_item(item1)
+      subject.add_item(item2)
       subject.item_ids.must_equal [item1.id, item2.id]
     end
 
