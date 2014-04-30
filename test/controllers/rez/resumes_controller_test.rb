@@ -154,12 +154,12 @@ module Rez
 
               it "returns the updated resume in JSON format with embedded Profile" do
                 put :update, id: resume, resume: update_attrs, use_route: 'rez'
-                response_json = JSON.parse(response.body)
-                response_json['resume']['profile_id'].must_equal profile.id
-                response_json['resume']['name'].must_equal 'Business Resume'
+                json = JSON.parse(response.body)
+                json['resume']['profile'].to_json.must_equal ProfileSerializer.new(profile, root: false).to_json
+                json['resume']['name'].must_equal 'Business Resume'
               end
             end
-            
+
             describe 'given an invalid profile id' do
 
               let(:update_attrs) {{ profile_id: 'wrong' }}
@@ -195,12 +195,12 @@ module Rez
 
               it "returns the updated resume in JSON format with address_id" do
                 put :update, id: resume, resume: update_attrs, use_route: 'rez'
-                response_json = JSON.parse(response.body)
-                response_json['resume']['address_id'].must_equal address.id
-                response_json['resume']['name'].must_equal 'Fun Resume'
+                json = JSON.parse(response.body)
+                json['resume']['address'].to_json.must_equal AddressSerializer.new(address, root: false).to_json
+                json['resume']['name'].must_equal 'Fun Resume'
               end
             end
-            
+
             describe 'given an invalid address id' do
 
               let(:update_attrs) {{ address_id: 'wrong' }}

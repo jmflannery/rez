@@ -196,7 +196,7 @@ module Rez
         let(:current_user) { FactoryGirl.create(:user) }
         let(:token) { FactoryGirl.create(:token, user: current_user) }
         before do request.headers['X-Toke-Key'] = token.key end
-      
+
         describe "given a valid Item id" do
 
           it "destroys the item" do
