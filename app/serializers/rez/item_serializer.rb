@@ -1,5 +1,7 @@
 module Rez
   class ItemSerializer < ActiveModel::Serializer
-    attributes :id, :name, :title, :heading, :bullet_ids, :paragraph_ids
+    attributes :id, :name, :title, :heading
+
+    has_many :bullets, :paragraphs
   end
 end
