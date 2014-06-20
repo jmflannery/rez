@@ -82,6 +82,7 @@ module Rez
       @resume.item_ids = ids
       @resume.item_ids_will_change!
       @resume.save
+      params[:resume].delete(:item_ids)
     end
 
     def resume_params
