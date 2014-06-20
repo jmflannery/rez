@@ -5,6 +5,7 @@ module Rez
     before_action :set_resume, only: [:index]
     before_action :set_item, only: [:show, :update, :destroy]
     before_action :set_items, only: [:index]
+    before_action :update_bullets, only: [:update]
 
     def create
       @item = Item.new(item_params)
@@ -53,6 +54,21 @@ module Rez
       else
         @items = Item.all
       end
+    end
+
+    def update_bullets
+      ids = []
+      if params[:item][:bullet_ids]
+        params[:item][:bullet_ids].uniq.map { |i| i.to_i }.each do |bullet_id|
+          if Point.exists? bullet_id
+            ids << bullet_id
+          end
+        end
+      end
+      @item.bullet_ids = ids
+      @item.bullet_ids_will_change!
+      @item.save
+      params[:item].delete(:bullet_ids)
     end
 
     def item_params

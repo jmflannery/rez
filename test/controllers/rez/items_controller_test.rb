@@ -164,6 +164,49 @@ module Rez
             put :update, id: item, item: update_attrs, use_route: 'rez'
             response.body.must_equal(ItemSerializer.new(item.reload).to_json)
           end
+
+          describe "updating the Item's Bullets" do
+
+            let(:bullet1) { FactoryGirl.create(:bullet) }
+            let(:bullet2) { FactoryGirl.create(:bullet) }
+            let(:update_attrs) {{
+              bullet_ids: [bullet1.id, bullet2.id],
+              name: 'New name',
+              title: 'New title',
+              heading: 'New heading'
+            }}
+
+            it "responds with 200 OK" do
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              response.status.must_equal 200
+            end
+
+            it "updates the Item's bullet_ids" do
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.bullet_ids.must_equal [bullet1.id, bullet2.id]
+            end
+
+            it "does not update invalid bullet ids" do
+              update_attrs[:bullet_ids] << 1234
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.bullet_ids.wont_include 1234
+            end
+
+            it 'does not insert duplicate bullets' do
+              update_attrs[:bullet_ids] << bullet1.id
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.bullet_ids.must_equal [bullet1.id, bullet2.id]
+            end
+
+            it 'removes bullets from the item that are not given in bullet_ids' do
+              item.bullet_ids << bullet1.id
+              item.bullet_ids_will_change!
+              item.save
+              update_attrs[:bullet_ids].delete_at(0)
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.bullet_ids.wont_include bullet1.id
+            end
+          end
         end
 
         describe "given an invalid item id" do
