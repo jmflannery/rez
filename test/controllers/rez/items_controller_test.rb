@@ -207,6 +207,49 @@ module Rez
               item.reload.bullet_ids.wont_include bullet1.id
             end
           end
+
+          describe "updating the Item's Paragraphs" do
+
+            let(:paragraph1) { FactoryGirl.create(:paragraph) }
+            let(:paragraph2) { FactoryGirl.create(:paragraph) }
+            let(:update_attrs) {{
+              paragraph_ids: [paragraph1.id, paragraph2.id],
+              name: 'New name',
+              title: 'New title',
+              heading: 'New heading'
+            }}
+
+            it "responds with 200 OK" do
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              response.status.must_equal 200
+            end
+
+            it "updates the Item's paragraph_ids" do
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.paragraph_ids.must_equal [paragraph1.id, paragraph2.id]
+            end
+
+            it "does not update invalid paragraph ids" do
+              update_attrs[:paragraph_ids] << 1234
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.paragraph_ids.wont_include 1234
+            end
+
+            it 'does not insert duplicate paragraphs' do
+              update_attrs[:paragraph_ids] << paragraph1.id
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.paragraph_ids.must_equal [paragraph1.id, paragraph2.id]
+            end
+
+            it 'removes paragraphs from the item that are not given in paragraph_ids' do
+              item.paragraph_ids << paragraph1.id
+              item.paragraph_ids_will_change!
+              item.save
+              update_attrs[:paragraph_ids].delete_at(0)
+              put :update, id: item, item: update_attrs, use_route: 'rez'
+              item.reload.paragraph_ids.wont_include paragraph1.id
+            end
+          end
         end
 
         describe "given an invalid item id" do
