@@ -139,7 +139,7 @@ module Rez
     describe "PUT update" do
 
       let(:item) { FactoryGirl.create(:item) }
-      let(:update_attrs) {{ title: 'My Awesome Title', heading: 'My Sweet Heading' }}
+      let(:update_attrs) {{ name: 'my item', title: 'My Awesome Title', heading: 'My Sweet Heading' }}
 
       describe "with a valid Toke key in the header" do
 
@@ -176,11 +176,6 @@ module Rez
               heading: 'New heading'
             }}
 
-            it "responds with 200 OK" do
-              put :update, id: item, item: update_attrs, use_route: 'rez'
-              response.status.must_equal 200
-            end
-
             it "updates the Item's bullet_ids" do
               put :update, id: item, item: update_attrs, use_route: 'rez'
               item.reload.bullet_ids.must_equal [bullet1.id, bullet2.id]
@@ -198,13 +193,19 @@ module Rez
               item.reload.bullet_ids.must_equal [bullet1.id, bullet2.id]
             end
 
-            it 'removes bullets from the item that are not given in bullet_ids' do
-              item.bullet_ids << bullet1.id
-              item.bullet_ids_will_change!
-              item.save
-              update_attrs[:bullet_ids].delete_at(0)
-              put :update, id: item, item: update_attrs, use_route: 'rez'
-              item.reload.bullet_ids.wont_include bullet1.id
+            describe 'when the item already has bullet(s)' do
+
+              before {
+                item.bullet_ids << bullet1.id
+                item.bullet_ids_will_change!
+                item.save
+                update_attrs[:bullet_ids].delete_at(0)
+              }
+
+              it 'bullets not given in bullet_ids are removed from the item' do
+                put :update, id: item, item: update_attrs, use_route: 'rez'
+                item.reload.bullet_ids.wont_include bullet1.id
+              end
             end
           end
 
@@ -218,11 +219,6 @@ module Rez
               title: 'New title',
               heading: 'New heading'
             }}
-
-            it "responds with 200 OK" do
-              put :update, id: item, item: update_attrs, use_route: 'rez'
-              response.status.must_equal 200
-            end
 
             it "updates the Item's paragraph_ids" do
               put :update, id: item, item: update_attrs, use_route: 'rez'
@@ -241,13 +237,19 @@ module Rez
               item.reload.paragraph_ids.must_equal [paragraph1.id, paragraph2.id]
             end
 
-            it 'removes paragraphs from the item that are not given in paragraph_ids' do
-              item.paragraph_ids << paragraph1.id
-              item.paragraph_ids_will_change!
-              item.save
-              update_attrs[:paragraph_ids].delete_at(0)
-              put :update, id: item, item: update_attrs, use_route: 'rez'
-              item.reload.paragraph_ids.wont_include paragraph1.id
+            describe 'when the item already has paragraph(s)' do
+
+              before {
+                item.paragraph_ids << paragraph1.id
+                item.paragraph_ids_will_change!
+                item.save
+                update_attrs[:paragraph_ids].delete_at(0)
+              }
+
+              it 'paragraphs not given in paragraph_ids are removed from the item' do
+                put :update, id: item, item: update_attrs, use_route: 'rez'
+                item.reload.paragraph_ids.wont_include paragraph1.id
+              end
             end
           end
         end
