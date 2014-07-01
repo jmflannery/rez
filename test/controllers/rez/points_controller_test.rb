@@ -17,7 +17,7 @@ module Rez
           post :create, point: attrs, use_route: 'rez'
           response.status.must_equal 201
         end
-        
+
         it "creates a Point" do
           assert_difference('Point.count', 1) do
             post :create, point: attrs, use_route: 'rez'
@@ -34,10 +34,10 @@ module Rez
 
           let(:item) { FactoryGirl.create(:item) }
 
-          it "will not add the Point to the Item if the Point has no type" do
-            post :create, item_id: item.id, point: attrs, use_route: 'rez'
+          it "will not add the Point to the Item if the Point has an invalid type" do
+            post :create, item_id: item.id, type: 'other', point: attrs, use_route: 'rez'
             json = JSON.parse(response.body)
-            item.bullet_ids.wont_include json['point']['id']
+            item.point_ids.wont_include json['point']['id']
           end
 
           describe "given a point type" do
@@ -46,7 +46,7 @@ module Rez
               post :create, item_id: item.id, type: 'bullet', point: attrs, use_route: 'rez'
               json = JSON.parse(response.body)
               json['point']['point_type'].must_equal 'bullet'
-              item.reload.bullet_ids.must_include json['point']['id']
+              item.reload.point_ids.must_include json['point']['id']
             end
           end
 
@@ -160,7 +160,7 @@ module Rez
         let(:bullet2) { FactoryGirl.create(:bullet) }
         let(:item_points) { [bullet2] }
 
-        before do item.add_bullet(bullet2) end
+        before do item.add_point(bullet2) end
 
         it "returns all the Item's Points in JSON format" do
           get :index, item_id: item.id, use_route: 'rez'
@@ -175,8 +175,8 @@ module Rez
           let(:item_points) { [bullet2, bullet3] }
 
           before do
-            item.add_bullet(bullet2)
-            item.add_bullet(bullet3)
+            item.add_point(bullet2)
+            item.add_point(bullet3)
           end
 
           it "returns all the Item's bullet type Points in JSON format" do

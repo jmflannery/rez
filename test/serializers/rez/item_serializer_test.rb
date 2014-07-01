@@ -9,8 +9,8 @@ module Rez
     let(:paragraph) { FactoryGirl.create(:paragraph) }
 
     before do
-      item.add_bullet(bullet)
-      item.add_paragraph(paragraph)
+      item.add_point(bullet)
+      item.add_point(paragraph)
     end
 
     it 'serializes an Item to JSON' do

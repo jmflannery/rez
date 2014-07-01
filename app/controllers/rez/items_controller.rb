@@ -5,8 +5,7 @@ module Rez
     before_action :set_resume, only: [:index]
     before_action :set_item, only: [:show, :update, :destroy]
     before_action :set_items, only: [:index]
-    before_action :update_bullets, only: [:update]
-    before_action :update_paragraphs, only: [:update]
+    before_action :update_points, only: [:update]
 
     def create
       @item = Item.new(item_params)
@@ -57,34 +56,18 @@ module Rez
       end
     end
 
-    def update_bullets
-      ids = []
-      if params[:item][:bullet_ids]
-        params[:item][:bullet_ids].uniq.map { |i| i.to_i }.each do |bullet_id|
-          if Point.exists? bullet_id
-            ids << bullet_id
+    def update_points
+      if params[:item][:point_ids]
+        @item.point_ids = []
+        params[:item][:point_ids].uniq.map { |i| i.to_i }.each do |point_id|
+          if Point.exists? point_id
+            @item.point_ids << point_id
           end
         end
       end
-      @item.bullet_ids = ids
-      @item.bullet_ids_will_change!
+      @item.point_ids_will_change!
       @item.save
-      params[:item].delete(:bullet_ids)
-    end
-
-    def update_paragraphs
-      ids = []
-      if params[:item][:paragraph_ids]
-        params[:item][:paragraph_ids].uniq.map { |i| i.to_i }.each do |paragraph_id|
-          if Point.exists? paragraph_id
-            ids << paragraph_id
-          end
-        end
-      end
-      @item.paragraph_ids = ids
-      @item.paragraph_ids_will_change!
-      @item.save
-      params[:item].delete(:paragraph_ids)
+      params[:item].delete(:point_ids)
     end
 
     def item_params

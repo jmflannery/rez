@@ -12,10 +12,8 @@ module Rez
       point.point_type = @type if @type
       if point.save
         if @item
-          if @type == 'bullet'
-            @item.add_bullet(point)
-          elsif @type == 'paragraph'
-            @item.add_paragraph(point)
+          if @type == 'bullet' || @type == 'paragraph'
+            @item.add_point(point)
           end
         end
         render json: point, status: :created
@@ -53,6 +51,7 @@ module Rez
       end
     end
 
+    #TODO refactor
     def set_type
       if params[:type]
         if params[:type] == 'bullet'

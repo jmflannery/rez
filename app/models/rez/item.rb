@@ -3,38 +3,36 @@ module Rez
     validates :name, presence: true
 
     def bullets
-      Point.where(id: bullet_ids)
+      points.where(point_type: 'bullet')
     end
 
     def paragraphs
-      Point.where(id: paragraph_ids)
+      points.where(point_type: 'paragraph')
     end
 
     def points
-      Point.where(id: bullet_ids)
+      Point.where(id: point_ids)
     end
 
-    def add_bullet(bullet)
-      if bullet && bullet.point_type == 'bullet'
-        bullet_ids << bullet.id
-        save_bullets_ids!
+    def add_point(point)
+      if valid_point? point
+        point_ids << point.id
+        save_point_ids!
       end
     end
 
-    def add_paragraph(paragraph)
-      if paragraph && paragraph.point_type == 'paragraph'
-        paragraph_ids << paragraph.id
-        save_paragraph_ids!
-      end
+    private
+
+    def valid_point?(point)
+      point && valid_type?(point.point_type) && !point.new_record?
     end
 
-    def save_bullets_ids!
-      bullet_ids_will_change!
-      save
+    def valid_type?(type)
+      type == 'bullet' || type == 'paragraph'
     end
 
-    def save_paragraph_ids!
-      paragraph_ids_will_change!
+    def save_point_ids!
+      point_ids_will_change!
       save
     end
   end
