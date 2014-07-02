@@ -32,3 +32,9 @@ class MiniTest::Spec
     DatabaseCleaner.clean
   end
 end
+
+def json(response, key)
+  json = ActiveSupport::JSON.decode response.body
+  key ? json[key].symbolize_keys : json.symbolize_keys
+end
+
