@@ -1,5 +1,6 @@
 module Rez
   class Section < ActiveRecord::Base
+    validates :name, presence: true
 
     def items
       Item.where(id: item_ids)
