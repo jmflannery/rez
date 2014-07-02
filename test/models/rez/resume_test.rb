@@ -29,5 +29,22 @@ module Rez
       subject.add_item(item2)
       subject.items.must_equal [item1, item2]
     end
+
+    describe 'Sections assoctiation' do
+
+      let(:section1) { FactoryGirl.create(:section) }
+      let(:section2) { FactoryGirl.create(:section) }
+
+      it 'initially has no Sections' do
+        subject.sections.must_be_empty
+      end
+
+      it 'can add Sections to itself' do
+        subject.add_section(section1)
+        subject.add_section(section2)
+        subject.sections.must_equal [section1, section2]
+      end
+    end
   end
 end
+

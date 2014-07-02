@@ -5,12 +5,34 @@ module Rez
 
     validates :name, presence: true
 
+    def sections
+      Section.where(id: section_ids)
+    end
+
+    def add_section(section)
+      if valid_section? section
+        section_ids << section.id
+        save_section_ids!
+      end
+    end
+
     def items
       Item.where(id: item_ids)
     end
 
     def add_item(item)
       item_ids << item.id
+    end
+
+    private
+
+    def valid_section?(section)
+      section && !section.new_record? && section.id > 0
+    end
+
+    def save_section_ids!
+      section_ids_will_change!
+      save
     end
   end
 end
