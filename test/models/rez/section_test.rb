@@ -11,15 +11,19 @@ module Rez
 
     let(:subject) { Section.new(attrs) }
 
-    it 'must be valid' do
+    it 'is valid with valid attributes' do
       subject.must_be :valid?
+    end
+
+    it 'is invalid without a name' do
+      Section.new(attrs.merge(name: '')).wont_be :valid?
     end
 
     it 'has a valid Factory' do
       FactoryGirl.build(:section).must_be :valid?
     end
 
-    describe 'Items' do
+    describe 'Items association' do
 
       let(:item) { FactoryGirl.create(:item) }
       let(:item2) { FactoryGirl.create(:item) }
@@ -28,7 +32,7 @@ module Rez
         subject.items.must_be_empty
       end
 
-      it 'can add items to its Item list' do
+      it 'can add Items to itself' do
         subject.add_item(item)
         subject.add_item(item2)
         subject.items.must_equal [item, item2]
