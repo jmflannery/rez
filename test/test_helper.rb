@@ -35,6 +35,10 @@ end
 
 def json(response, key)
   json = ActiveSupport::JSON.decode response.body
-  key ? json[key].symbolize_keys : json.symbolize_keys
+  if key
+    json[key].respond_to?(:symbolize_keys) ? json[key].symbolize_keys : json[key]
+  else
+    json.respond_to?(:symbolize_keys) ? json.symbolize_keys : json
+  end
 end
 

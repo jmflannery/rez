@@ -59,5 +59,54 @@ module Rez
         end
       end
     end
+
+    describe 'GET index' do
+
+      let(:section1) { FactoryGirl.create(:section) }
+      let(:section2) { FactoryGirl.create(:section) }
+
+      before do
+        @sections = [section1, section2]
+      end
+
+      it 'responds with 200 OK' do
+        get :index, use_route: 'rez'
+        response.status.must_equal 200
+      end
+
+      it "returns all the Sections in JSON format" do
+        get :index, use_route: 'rez'
+        serializer = ActiveModel::ArraySerializer.new(@sections, each_serializer: SectionSerializer)
+        response.body.must_equal({ sections: serializer }.to_json)
+      end
+
+      describe "if resume_id is given" do
+
+        let(:section3) { FactoryGirl.create(:section) }
+
+        before do
+          @resume = FactoryGirl.create(:resume)
+          @resume.add_section(section1)
+          @resume.add_section(section3)
+        end
+
+        it "returns only the sections for the given resume" do
+          get :index, resume_id: @resume.id, use_route: 'rez'
+          resp_json = json(response, 'sections')
+          puts resp_json.inspect
+          resp_json.size.must_equal 2
+          resp_json[0]['id'].must_equal section1.id
+          resp_json[1]['id'].must_equal section3.id
+        end
+
+        describe "resume_id is invalid" do
+
+          it "responds with 404 Not Found" do
+            get :index, resume_id: 'wrong', use_route: 'rez'
+            response.status.must_equal 404
+          end
+        end
+      end
+    end
   end
 end
