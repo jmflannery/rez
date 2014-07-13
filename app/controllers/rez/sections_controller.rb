@@ -4,6 +4,7 @@ module Rez
     before_action :toke, only: [:create]
     before_action :set_resume, only: [:index]
     before_action :set_sections, only: [:index]
+    before_action :set_section, only: [:show]
 
     def create
       section = Section.new(section_params)
@@ -18,6 +19,10 @@ module Rez
       render json: @sections
     end
 
+    def show
+      render json: @section
+    end
+
     private
 
     def set_sections
@@ -25,6 +30,13 @@ module Rez
         @sections = @resume.sections
       else
         @sections = Section.all
+      end
+    end
+
+    def set_section
+      if params[:id]
+        @section = Section.find_by(id: params[:id])
+        head :not_found unless @section
       end
     end
 
