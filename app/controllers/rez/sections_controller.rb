@@ -1,10 +1,11 @@
 module Rez
   class SectionsController < ApplicationController
 
-    before_action :toke, only: [:create]
+    before_action :toke, only: [:create, :update, :destroy]
     before_action :set_resume, only: [:index]
     before_action :set_sections, only: [:index]
-    before_action :set_section, only: [:show]
+    before_action :set_section, only: [:show, :update, :destroy]
+    before_action :update_items, only: [:update]
 
     def create
       section = Section.new(section_params)
@@ -23,6 +24,16 @@ module Rez
       render json: @section
     end
 
+    def update
+      @section.update(section_params)
+      render json: @section
+    end
+
+    def destroy
+      @section.destroy
+      head :no_content
+    end
+
     private
 
     def set_sections
@@ -38,6 +49,17 @@ module Rez
         @section = Section.find_by(id: params[:id])
         head :not_found unless @section
       end
+    end
+
+    def update_items
+      return unless params[:section][:item_ids]
+      item_ids = params[:section][:item_ids].uniq.select do |item_id|
+        Item.exists? item_id
+      end
+      @section.item_ids = item_ids.map { |i| i.to_i }
+      @section.item_ids_will_change!
+      @section.save
+      params[:section].delete(:item_ids)
     end
 
     def set_resume
