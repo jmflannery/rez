@@ -16,14 +16,6 @@ module Rez
       end
     end
 
-    def items
-      Item.where(id: item_ids)
-    end
-
-    def add_item(item)
-      item_ids << item.id
-    end
-
     private
 
     def valid_section?(section)
