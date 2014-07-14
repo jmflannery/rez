@@ -37,6 +37,13 @@ module Rez
         subject.add_item(item2)
         subject.items.must_equal [item, item2]
       end
+
+      it "can replace it's Items with a new set of Items" do
+        subject.add_item(FactoryGirl.create(:item))
+        subject.items = [item, item2]
+        subject.items.must_equal [item, item2]
+      end
     end
   end
 end
+

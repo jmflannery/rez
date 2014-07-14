@@ -6,18 +6,20 @@ module Rez
       Item.where(id: item_ids)
     end
 
-    def add_item(item)
-      if valid_item? item
-        item_ids << item.id
-        save_item_ids!
+    def items=(items)
+      self.item_ids = []
+      items.each do |item|
+        self.item_ids << item.id
       end
+      save_item_ids!
+    end
+
+    def add_item(item)
+      self.item_ids << item.id
+      save_item_ids!
     end
 
     private
-
-    def valid_item?(item)
-      item && !item.new_record? && item.id > 0
-    end
 
     def save_item_ids!
       item_ids_will_change!
