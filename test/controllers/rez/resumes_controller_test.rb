@@ -217,41 +217,41 @@ module Rez
             end
           end
 
-          describe 'updating the Items' do
+          describe 'updating the Sections' do
 
-            let(:item1) { FactoryGirl.create(:item) }
-            let(:item2) { FactoryGirl.create(:item) }
-            let(:update_attrs) {{ item_ids: [item1.id, item2.id], name: 'Fun Resume' }}
+            let(:section1) { FactoryGirl.create(:section) }
+            let(:section2) { FactoryGirl.create(:section) }
+            let(:update_attrs) {{ section_ids: [section1.id, section2.id], name: 'Fun Resume' }}
 
             it 'responds with 200 OK' do
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
               response.status.must_equal 200
             end
 
-            it 'updates the item_ids' do
+            it 'updates the section_ids' do
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
-              resume.reload.item_ids.must_equal [item1.id, item2.id]
+              resume.reload.section_ids.must_equal [section1.id, section2.id]
             end
 
-            it 'does not update invalid item ids' do
-              update_attrs[:item_ids] << 1234
+            it 'does not update invalid section ids' do
+              update_attrs[:section_ids] << 1234
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
-              resume.reload.item_ids.wont_include 1234
+              resume.reload.section_ids.wont_include 1234
             end
 
-            it 'does not insert duplicate items' do
-              update_attrs[:item_ids] << item1.id
+            it 'does not insert duplicate sections' do
+              update_attrs[:section_ids] << section1.id
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
-              resume.reload.item_ids.must_equal [item1.id, item2.id]
+              resume.reload.section_ids.must_equal [section1.id, section2.id]
             end
 
-            it 'removes items from the resume that are not given in item_ids' do
-              resume.item_ids << item1.id
-              resume.item_ids_will_change!
+            it 'removes sections from the resume that are not given in section_ids' do
+              resume.section_ids << section1.id
+              resume.section_ids_will_change!
               resume.save
-              update_attrs[:item_ids].delete_at(0)
+              update_attrs[:section_ids].delete_at(0)
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
-              resume.reload.item_ids.wont_include item1.id
+              resume.reload.section_ids.wont_include section1.id
             end
           end
         end

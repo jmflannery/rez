@@ -5,7 +5,7 @@ module Rez
     before_action :set_resume, only: [:show, :update, :destroy]
     before_action :update_profile, only: [:update]
     before_action :update_address, only: [:update]
-    before_action :update_items, only: [:update]
+    before_action :update_sections, only: [:update]
 
     def create
       @resume = Resume.new(resume_params)
@@ -70,19 +70,19 @@ module Rez
       end
     end
 
-    def update_items
+    def update_sections
       ids = []
-      if params[:resume][:item_ids]
-        params[:resume][:item_ids].uniq.map { |i| i.to_i }.each do |item_id|
-          if Item.exists?(item_id)
-            ids << item_id
+      if params[:resume][:section_ids]
+        params[:resume][:section_ids].uniq.map { |i| i.to_i }.each do |section_id|
+          if Section.exists?(section_id)
+            ids << section_id
           end
         end
       end
-      @resume.item_ids = ids
-      @resume.item_ids_will_change!
+      @resume.section_ids = ids
+      @resume.section_ids_will_change!
       @resume.save
-      params[:resume].delete(:item_ids)
+      params[:resume].delete(:section_ids)
     end
 
     def resume_params
