@@ -44,6 +44,11 @@ module Rez
       it "has a list of points that are type paragraph" do
         subject.paragraphs.must_equal [paragraph, paragraph2]
       end
+
+      it "can replace it's Points with a new set of Points" do
+        subject.points = [bullet, paragraph]
+        subject.points.must_equal [bullet, paragraph]
+      end
     end
   end
 end

@@ -14,6 +14,14 @@ module Rez
       Point.where(id: point_ids)
     end
 
+    def points=(points)
+      self.point_ids = []
+      points.each do |point|
+        self.point_ids << point.id
+      end
+      save_point_ids!
+    end
+
     def add_point(point)
       if valid_point? point
         point_ids << point.id
