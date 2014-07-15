@@ -45,29 +45,30 @@ module Rez
     end
 
     def update_profile
-      if params[:resume][:profile_id]
-        profile_id = params[:resume][:profile_id]
-        if Profile.exists?(profile_id)
-          @resume.update(profile_id: profile_id)
-        else
-          error = { profile_id: "Profile #{profile_id} not found" }
-          render json: error, status: :not_found
-        end
-        params[:resume].delete(:profile_id)
+      return unless params[:resume][:profile_id]
+      profile_id = params[:resume][:profile_id]
+      profile = Profile.find_by(id: profile_id)
+      if profile
+        @resume.profile = profile
+        @resume.save
+      else
+        error = { profile_id: "Profile #{profile_id} not found" }
+        render json: error, status: :bad_request
       end
+      params[:resume].delete(:profile_id)
     end
 
     def update_address
-      if params[:resume][:address_id]
-        address_id = params[:resume][:address_id]
-        if Address.exists?(address_id)
-          @resume.update(address_id: address_id)
-        else
-          error = { address_id: "Address #{address_id} not found" }
-          render json: error, status: :not_found
-        end
-        params[:resume].delete(:address_id)
+      return unless params[:resume][:address_id]
+      address_id = params[:resume][:address_id]
+      address = Address.find_by(id: address_id)
+      if address
+        @resume.address = address
+      else
+        error = { address_id: "Address #{address_id} not found" }
+        render json: error, status: :bad_request
       end
+      params[:resume].delete(:address_id)
     end
 
     def update_sections

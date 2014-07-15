@@ -164,9 +164,9 @@ module Rez
 
               let(:update_attrs) {{ profile_id: 'wrong' }}
 
-              it 'responds with 404 Not Found' do
+              it 'responds with 400 Bad Request' do
                 put :update, id: resume, resume: update_attrs, use_route: 'rez'
-                response.status.must_equal 404
+                response.status.must_equal 400
               end
 
               it 'responds with a JSON formatted error message' do
@@ -205,9 +205,9 @@ module Rez
 
               let(:update_attrs) {{ address_id: 'wrong' }}
 
-              it 'responds with 404 Not Found' do
+              it 'responds with 400 Bad Request' do
                 put :update, id: resume, resume: update_attrs, use_route: 'rez'
-                response.status.must_equal 404
+                response.status.must_equal 400
               end
 
               it 'responds with a JSON formatted error message' do
