@@ -57,17 +57,15 @@ module Rez
     end
 
     def update_points
-      if params[:item][:point_ids]
-        @item.point_ids = []
-        params[:item][:point_ids].uniq.map { |i| i.to_i }.each do |point_id|
-          if Point.exists? point_id
-            @item.point_ids << point_id
-          end
-        end
-      end
-      @item.point_ids_will_change!
-      @item.save
+      @item.points = point_params if point_params
       params[:item].delete(:point_ids)
+    end
+
+    def point_params
+      return unless params[:item][:point_ids]
+      params[:item][:point_ids].uniq.map { |point_id|
+        Point.find_by(id: point_id)
+      }.reject { |point| point.nil? }
     end
 
     def item_params
@@ -75,3 +73,4 @@ module Rez
     end
   end
 end
+
