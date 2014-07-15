@@ -71,18 +71,15 @@ module Rez
     end
 
     def update_sections
-      ids = []
-      if params[:resume][:section_ids]
-        params[:resume][:section_ids].uniq.map { |i| i.to_i }.each do |section_id|
-          if Section.exists?(section_id)
-            ids << section_id
-          end
-        end
-      end
-      @resume.section_ids = ids
-      @resume.section_ids_will_change!
-      @resume.save
+      @resume.sections = section_params if section_params
       params[:resume].delete(:section_ids)
+    end
+
+    def section_params
+      return unless params[:resume][:section_ids]
+      params[:resume][:section_ids].uniq.map { |section_id|
+        Section.find_by(id: section_id)
+      }.reject { |section| section.nil? }
     end
 
     def resume_params
