@@ -23,17 +23,13 @@ module Rez
     end
 
     def add_point(point)
-      if valid_point? point
+      if point && (valid_type? point.point_type)
         point_ids << point.id
         save_point_ids!
       end
     end
 
     private
-
-    def valid_point?(point)
-      point && valid_type?(point.point_type) && !point.new_record?
-    end
 
     def valid_type?(type)
       type == 'bullet' || type == 'paragraph'
