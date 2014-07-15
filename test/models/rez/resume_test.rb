@@ -28,6 +28,12 @@ module Rez
         subject.add_section(section2)
         subject.sections.must_equal [section1, section2]
       end
+
+      it "can replace it's Sections with a new set of Sections" do
+        subject.add_section(FactoryGirl.create(:section))
+        subject.sections = [section1, section2]
+        subject.sections.must_equal [section1, section2]
+      end
     end
   end
 end

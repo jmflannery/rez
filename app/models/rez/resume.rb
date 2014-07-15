@@ -9,6 +9,14 @@ module Rez
       Section.where(id: section_ids)
     end
 
+    def sections=(sections)
+      self.section_ids = []
+      sections.each do |section|
+        self.section_ids << section.id
+      end
+      save_section_ids!
+    end
+
     def add_section(section)
       section_ids << section.id
       save_section_ids!
