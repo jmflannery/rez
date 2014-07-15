@@ -2,7 +2,7 @@ module Rez
   class ItemsController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
-    before_action :set_resume, only: [:index]
+    before_action :set_section, only: [:index]
     before_action :set_item, only: [:show, :update, :destroy]
     before_action :set_items, only: [:index]
     before_action :update_points, only: [:update]
@@ -36,10 +36,10 @@ module Rez
 
     private
 
-    def set_resume
-      if params[:resume_id]
-        @resume = Resume.find_by(id: params[:resume_id])
-        head :not_found unless @resume
+    def set_section
+      if params[:section_id]
+        @section = Section.find_by(id: params[:section_id])
+        head :not_found unless @section
       end
     end
 
@@ -49,8 +49,8 @@ module Rez
     end
 
     def set_items
-      if @resume
-        @items = @resume.items
+      if @section
+        @items = @section.items
       else
         @items = Item.all
       end

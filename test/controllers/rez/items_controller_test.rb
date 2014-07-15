@@ -70,7 +70,7 @@ module Rez
       let(:item2) { FactoryGirl.create(:item) }
 
       before do
-        @items = [item2, item1]
+        @items = [item1, item2]
       end
 
       it "responds with 200 OK" do
@@ -84,29 +84,29 @@ module Rez
         response.body.must_equal({ items: serializer }.to_json)
       end
 
-      describe "if resume_id is given" do
+      describe "if section_id is given" do
 
         let(:item3) { FactoryGirl.create(:item) }
 
         before do
-          @resume = FactoryGirl.create(:resume, item_ids: [item1.id, item3.id])
+          @section = FactoryGirl.create(:section, item_ids: [item1.id, item3.id])
         end
 
-        it "returns only the items for the given resume" do
-          get :index, resume_id: @resume.id, use_route: 'rez'
+        it "returns only the items for the given section" do
+          get :index, section_id: @section.id, use_route: 'rez'
           json = JSON.parse(response.body)
           json['items'].size.must_equal 2
           json['items'][0]['id'].must_equal item1.id
           json['items'][1]['id'].must_equal item3.id
         end
 
-        describe "resume_id is invalid" do
+        describe "section_id is invalid" do
 
           it "responds with 404 Not Found" do
-            get :index, resume_id: 'wrong', use_route: 'rez'
+            get :index, section_id: 'wrong', use_route: 'rez'
             response.status.must_equal 404
           end
-        end 
+        end
       end
     end
 
