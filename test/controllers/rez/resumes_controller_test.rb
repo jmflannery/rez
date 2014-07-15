@@ -65,14 +65,7 @@ module Rez
       let(:resume) { FactoryGirl.create(:resume) }
       let(:resume2) { FactoryGirl.create(:resume) }
 
-      before do
-        @resumes = [resume, resume2]
-      end
-
-      it "responds with 200 OK" do
-        get :index, use_route: 'rez'
-        response.status.must_equal 200
-      end
+      before do @resumes = [resume, resume2] end
 
       it "returns all the Resumes in JSON format" do
         get :index, use_route: 'rez'
@@ -87,11 +80,6 @@ module Rez
 
       describe "given a valid Resume id" do
 
-        it "responds with 200 OK" do
-          get :show, id: resume, use_route: 'rez'
-          response.status.must_equal 200
-        end
-
         it "responds with the requested Resume in JSON format" do
           get :show, id: resume, use_route: 'rez'
           response.body.must_equal(ResumeSerializer.new(resume).to_json)
@@ -100,9 +88,9 @@ module Rez
 
       describe "given an invalid Resume id" do
 
-        it "responds with 404 Not Found" do
+        it "responds with 400 Bad Request" do
           get :show, id: 'wrong', use_route: 'rez'
-          response.status.must_equal 404
+          response.status.must_equal 400
         end
       end
     end
@@ -120,11 +108,6 @@ module Rez
 
         describe "on successfull update" do
 
-          it "responds with 200 OK" do
-            put :update, id: resume, resume: update_attrs, use_route: 'rez'
-            response.status.must_equal 200
-          end
-
           it "updates the resume record" do
             put :update, id: resume, resume: update_attrs, use_route: 'rez'
             resume.reload.name.must_equal('My Awesome Resume')
@@ -141,11 +124,6 @@ module Rez
 
               let(:profile) { FactoryGirl.create(:profile, firstname: 'Jaxon', nickname: 'Jax') }
               let(:update_attrs) {{ profile_id: profile.id, name: 'Business Resume' }}
-
-              it 'responds with 200 OK' do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
-                response.status.must_equal 200
-              end
 
               it "updates the Resume's Profile" do
                 put :update, id: resume, resume: update_attrs, use_route: 'rez'
@@ -183,11 +161,6 @@ module Rez
               let(:address) { FactoryGirl.create(:address, building_number: '22', street_name: 'G St') }
               let(:update_attrs) {{ address_id: address.id, name: 'Fun Resume' }}
 
-              it 'responds with 200 OK' do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
-                response.status.must_equal 200
-              end
-
               it "updates the Resume's Address" do
                 put :update, id: resume, resume: update_attrs, use_route: 'rez'
                 resume.reload.address.id.must_equal address.id
@@ -223,12 +196,7 @@ module Rez
             let(:section2) { FactoryGirl.create(:section) }
             let(:update_attrs) {{ section_ids: [section1.id, section2.id], name: 'Fun Resume' }}
 
-            it 'responds with 200 OK' do
-              put :update, id: resume, resume: update_attrs, use_route: 'rez'
-              response.status.must_equal 200
-            end
-
-            it 'updates the section_ids' do
+            it "updates the Resumes Section's" do
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
               resume.reload.section_ids.must_equal [section1.id, section2.id]
             end
@@ -246,21 +214,19 @@ module Rez
             end
 
             it 'removes sections from the resume that are not given in section_ids' do
-              resume.section_ids << section1.id
-              resume.section_ids_will_change!
-              resume.save
+              resume.add_section(section1)
               update_attrs[:section_ids].delete_at(0)
               put :update, id: resume, resume: update_attrs, use_route: 'rez'
-              resume.reload.section_ids.wont_include section1.id
+              resume.reload.sections.wont_include section1
             end
           end
         end
 
         describe "given an invalid resume id" do
 
-          it "responds with 404 Not Found" do
+          it "responds with 400 Bad Request" do
             put :update, id: 'nope', resume: update_attrs, use_route: 'rez'
-            response.status.must_equal 404
+            response.status.must_equal 400
           end
         end
 
@@ -301,14 +267,14 @@ module Rez
         let(:current_user) { FactoryGirl.create(:user) }
         let(:token) { FactoryGirl.create(:token, user: current_user) }
         before do request.headers['X-Toke-Key'] = token.key end
-      
+
         describe "given a valid Resume id" do
 
           it "destroys the resume" do
             assert_difference('Resume.count', -1) do
               delete :destroy, id: @resume, use_route: 'rez'
             end
-          end 
+          end
 
           it "responds with 204 No Content" do
             delete :destroy, id: @resume, use_route: 'rez'
@@ -319,9 +285,9 @@ module Rez
 
         describe "given an invalid Resume id" do
 
-          it "responds with 404 Not Found" do
+          it "responds with 400 Bad Request" do
             delete :destroy, id: 'wrong', use_route: 'rez'
-            response.status.must_equal 404
+            response.status.must_equal 400
           end
         end
       end
@@ -339,3 +305,4 @@ module Rez
     end
   end
 end
+

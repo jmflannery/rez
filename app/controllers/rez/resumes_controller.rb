@@ -41,7 +41,7 @@ module Rez
 
     def set_resume
       @resume = Resume.find_by(id: params[:id])
-      head :not_found unless @resume
+      head :bad_request unless @resume
     end
 
     def update_profile
