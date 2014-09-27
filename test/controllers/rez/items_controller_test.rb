@@ -170,7 +170,7 @@ module Rez
             let(:bullet1) { FactoryGirl.create(:bullet) }
             let(:bullet2) { FactoryGirl.create(:bullet) }
             let(:update_attrs) {{
-              point_ids: [bullet1.id, bullet2.id],
+              bullet_ids: [bullet1.id, bullet2.id],
               name: 'New name',
               title: 'New title',
               heading: 'New heading'
@@ -182,13 +182,13 @@ module Rez
             end
 
             it "does not update invalid bullet ids" do
-              update_attrs[:point_ids] << 1234
+              update_attrs[:bullet_ids] << 1234
               put :update, id: item, item: update_attrs, use_route: 'rez'
               item.reload.point_ids.wont_include 1234
             end
 
             it 'does not insert duplicate bullets' do
-              update_attrs[:point_ids] << bullet1.id
+              update_attrs[:bullet_ids] << bullet1.id
               put :update, id: item, item: update_attrs, use_route: 'rez'
               item.reload.point_ids.must_equal [bullet1.id, bullet2.id]
             end
@@ -197,7 +197,7 @@ module Rez
 
               before do
                 item.add_point bullet1
-                update_attrs[:point_ids].delete_at(0)
+                update_attrs[:bullet_ids].delete_at(0)
               end
 
               it 'bullets not given in bullet_ids are removed from the item' do
@@ -212,7 +212,7 @@ module Rez
             let(:paragraph1) { FactoryGirl.create(:paragraph) }
             let(:paragraph2) { FactoryGirl.create(:paragraph) }
             let(:update_attrs) {{
-              point_ids: [paragraph1.id, paragraph2.id],
+              paragraph_ids: [paragraph1.id, paragraph2.id],
               name: 'New name',
               title: 'New title',
               heading: 'New heading'
@@ -224,27 +224,25 @@ module Rez
             end
 
             it "does not update invalid paragraph ids" do
-              update_attrs[:point_ids] << 1234
+              update_attrs[:paragraph_ids] << 1234
               put :update, id: item, item: update_attrs, use_route: 'rez'
               item.reload.point_ids.wont_include 1234
             end
 
             it 'does not insert duplicate paragraphs' do
-              update_attrs[:point_ids] << paragraph1.id
+              update_attrs[:paragraph_ids] << paragraph1.id
               put :update, id: item, item: update_attrs, use_route: 'rez'
               item.reload.point_ids.must_equal [paragraph1.id, paragraph2.id]
             end
 
             describe 'when the item already has paragraph(s)' do
 
-              before {
-                item.point_ids << paragraph1.id
-                item.point_ids_will_change!
-                item.save
-                update_attrs[:point_ids].delete_at(0)
-              }
+              before do
+                item.add_point paragraph1
+                update_attrs[:paragraph_ids].delete_at(0)
+              end
 
-              it 'paragraphs not given in point_ids are removed from the item' do
+              it 'paragraphs not given in paragraph_ids are removed from the item' do
                 put :update, id: item, item: update_attrs, use_route: 'rez'
                 item.reload.point_ids.wont_include paragraph1.id
               end

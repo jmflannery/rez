@@ -58,12 +58,13 @@ module Rez
 
     def update_points
       @item.points = point_params if point_params
-      params[:item].delete(:point_ids)
+      params[:item].delete(:bullet_ids) if params[:item][:bullet_ids]
+      params[:item].delete(:paragraph_ids) if params[:item][:paragraph_ids]
     end
 
     def point_params
-      return unless params[:item][:point_ids]
-      params[:item][:point_ids].uniq.map { |point_id|
+      return unless params[:item][:bullet_ids] || params[:item][:paragraph_ids]
+      (params[:item][:bullet_ids] || []).concat(params[:item][:paragraph_ids] || []).uniq.map { |point_id|
         Point.find_by(id: point_id)
       }.reject { |point| point.nil? }
     end
