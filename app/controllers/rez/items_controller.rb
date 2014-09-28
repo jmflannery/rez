@@ -2,10 +2,11 @@ module Rez
   class ItemsController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
-    before_action :set_section, only: [:index]
+    before_action :set_section, only: [:create, :index]
     before_action :set_item, only: [:show, :update, :destroy]
     before_action :set_items, only: [:index]
     before_action :update_points, only: [:update]
+    after_action :update_section, only: [:create]
 
     def create
       @item = Item.new(item_params)
@@ -60,6 +61,11 @@ module Rez
       @item.points = point_params if point_params
       params[:item].delete(:bullet_ids) if params[:item][:bullet_ids]
       params[:item].delete(:paragraph_ids) if params[:item][:paragraph_ids]
+    end
+
+    def update_section
+      return unless @section && @item
+      @section.add_item(@item)
     end
 
     def point_params

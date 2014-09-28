@@ -36,7 +36,18 @@ module Rez
           response.body.must_equal ItemSerializer.new(assigns(:item)).to_json
         end
 
-        describe "given no resume name" do
+        describe 'given a valid section id' do
+
+          let(:section) { FactoryGirl.create(:section) }
+
+          it 'adds the new item to the section' do
+            post :create, item: item_attrs, section_id: section.id, use_route: 'rez'
+            id = JSON.parse(response.body)['item']['id']
+            section.reload.item_ids.must_include id
+          end
+        end
+
+        describe "given no name" do
 
           before do item_attrs[:name] = '' end
 
