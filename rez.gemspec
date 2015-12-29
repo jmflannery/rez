@@ -7,11 +7,11 @@ require "rez/version"
 Gem::Specification.new do |s|
   s.name        = "rez"
   s.version     = Rez::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of Rez."
-  s.description = "TODO: Description of Rez."
+  s.authors     = ["Jack Flannery"]
+  s.email       = ["jmflannery81@gmail.com"]
+  s.homepage    = "https://github.com/jmflannery/rez"
+  s.summary     = "A resume web API"
+  s.description = "An API for managing online resumes."
 
   s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
