@@ -47,7 +47,7 @@ module Rez
     end
 
     def profile_params
-      params.require(:profile).permit(:firstname, :middlename, :lastname, :nickname, :prefix, :suffix, :title)
+      params.require(:profile).permit(:firstname, :middlename, :lastname, :nickname, :prefix, :suffix, :title, :email)
     end
   end
 end

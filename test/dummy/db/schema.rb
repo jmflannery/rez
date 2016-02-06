@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140714225502) do
+ActiveRecord::Schema.define(version: 20160206141323) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(version: 20140714225502) do
     t.text     "title"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "email"
   end
 
   create_table "rez_resumes", force: true do |t|
@@ -65,7 +66,10 @@ ActiveRecord::Schema.define(version: 20140714225502) do
     t.datetime "updated_at"
     t.text     "name"
     t.integer  "section_ids", default: [], array: true
+    t.integer  "user_id"
   end
+
+  add_index "rez_resumes", ["user_id"], name: "index_rez_resumes_on_user_id", using: :btree
 
   create_table "rez_sections", force: true do |t|
     t.text     "name"

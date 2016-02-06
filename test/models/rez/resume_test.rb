@@ -14,6 +14,12 @@ module Rez
       FactoryGirl.build(:resume).must_be :valid?
     end
 
+    it "has belongs to a user" do
+      user = FactoryGirl.build_stubbed(:user)
+      subject.user = user
+      subject.user.id.must_equal user.id
+    end
+
     describe 'Sections assoctiation' do
 
       let(:section1) { FactoryGirl.create(:section) }

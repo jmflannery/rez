@@ -2,6 +2,7 @@ module Rez
   class Resume < ActiveRecord::Base
     belongs_to :profile
     belongs_to :address
+    belongs_to :user, class_name: ::Toke::User
 
     validates :name, presence: true
 

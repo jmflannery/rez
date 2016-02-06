@@ -10,6 +10,7 @@ module Rez
       profile.prefix { Faker::Name.prefix }
       profile.suffix { Faker::Name.suffix }
       profile.title { Faker::Name.title }
+      profile.email { Faker::Internet.email }
     end
   end
 end
