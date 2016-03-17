@@ -2,6 +2,9 @@ require 'test_helper'
 
 module Rez
   describe ItemsController do
+    setup do
+      @routes = Engine.routes
+    end
 
     describe 'POST create' do
 
@@ -14,25 +17,25 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 201 Created" do
-          post :create, item: item_attrs, use_route: 'rez'
+          post :create, item: item_attrs
           response.status.must_equal 201
         end
 
         it "creates a new Item" do
           assert_difference('Item.count', 1) do
-            post :create, item: item_attrs, use_route: 'rez'
+            post :create, item: item_attrs
           end
         end
 
         it "sets the new Items fields" do
-          post :create, item: item_attrs, use_route: 'rez'
+          post :create, item: item_attrs
           json = JSON.parse(response.body)
           json['item']['title'].must_equal item_attrs[:title]
           json['item']['heading'].must_equal item_attrs[:heading]
         end
 
         it "returns the created Item in JSON format" do
-          post :create, item: item_attrs, use_route: 'rez'
+          post :create, item: item_attrs
           response.body.must_equal ItemSerializer.new(assigns(:item)).to_json
         end
 
@@ -41,7 +44,7 @@ module Rez
           let(:section) { FactoryGirl.create(:section) }
 
           it 'adds the new item to the section' do
-            post :create, item: item_attrs, section_id: section.id, use_route: 'rez'
+            post :create, item: item_attrs, section_id: section.id
             id = JSON.parse(response.body)['item']['id']
             section.reload.item_ids.must_include id
           end
@@ -52,12 +55,12 @@ module Rez
           before do item_attrs[:name] = '' end
 
           it "responds with 400 Bad Request" do
-            post :create, item: item_attrs, use_route: 'rez'
+            post :create, item: item_attrs
             response.status.must_equal 400
           end
 
           it "returns a hash with the error message" do
-            post :create, item: item_attrs, use_route: 'rez'
+            post :create, item: item_attrs
             response.body.must_equal({name: ["can't be blank"]}.to_json)
           end
         end
@@ -69,7 +72,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          post :create, item: item_attrs, use_route: 'rez'
+          post :create, item: item_attrs
           response.status.must_equal 401
         end
       end
@@ -85,12 +88,12 @@ module Rez
       end
 
       it "responds with 200 OK" do
-        get :index, use_route: 'rez'
+        get :index
         response.status.must_equal 200
       end
 
       it "returns all the Items in JSON format" do
-        get :index, use_route: 'rez'
+        get :index
         serializer = ActiveModel::ArraySerializer.new(@items, each_serializer: ItemSerializer)
         response.body.must_equal({ items: serializer }.to_json)
       end
@@ -104,7 +107,7 @@ module Rez
         end
 
         it "returns only the items for the given section" do
-          get :index, section_id: @section.id, use_route: 'rez'
+          get :index, section_id: @section.id
           json = JSON.parse(response.body)
           json['items'].size.must_equal 2
           json['items'][0]['id'].must_equal item1.id
@@ -114,7 +117,7 @@ module Rez
         describe "section_id is invalid" do
 
           it "responds with 404 Not Found" do
-            get :index, section_id: 'wrong', use_route: 'rez'
+            get :index, section_id: 'wrong'
             response.status.must_equal 404
           end
         end
@@ -128,12 +131,12 @@ module Rez
       describe "given a valid Item id" do
 
         it "responds with 200 OK" do
-          get :show, id: item, use_route: 'rez'
+          get :show, id: item
           response.status.must_equal 200
         end
 
         it "responds with the requested Item in JSON format" do
-          get :show, id: item, use_route: 'rez'
+          get :show, id: item
           response.body.must_equal(ItemSerializer.new(item).to_json)
         end
       end
@@ -141,7 +144,7 @@ module Rez
       describe "given an invalid Item id" do
 
         it "responds with 404 Not Found" do
-          get :show, id: 'wrong', use_route: 'rez'
+          get :show, id: 'wrong'
           response.status.must_equal 404
         end
       end
@@ -161,18 +164,18 @@ module Rez
         describe "on successfull update" do
 
           it "responds with 200 OK" do
-            put :update, id: item, item: update_attrs, use_route: 'rez'
+            put :update, id: item, item: update_attrs
             response.status.must_equal 200
           end
 
           it "updates the item record" do
-            put :update, id: item, item: update_attrs, use_route: 'rez'
+            put :update, id: item, item: update_attrs
             item.reload.title.must_equal('My Awesome Title')
             item.heading.must_equal('My Sweet Heading')
           end
 
           it "returns the updated item in JSON format" do
-            put :update, id: item, item: update_attrs, use_route: 'rez'
+            put :update, id: item, item: update_attrs
             response.body.must_equal(ItemSerializer.new(item.reload).to_json)
           end
 
@@ -188,19 +191,19 @@ module Rez
             }}
 
             it "updates the Item's point_ids" do
-              put :update, id: item, item: update_attrs, use_route: 'rez'
+              put :update, id: item, item: update_attrs
               item.reload.point_ids.must_equal [bullet1.id, bullet2.id]
             end
 
             it "does not update invalid bullet ids" do
               update_attrs[:bullet_ids] << 1234
-              put :update, id: item, item: update_attrs, use_route: 'rez'
+              put :update, id: item, item: update_attrs
               item.reload.point_ids.wont_include 1234
             end
 
             it 'does not insert duplicate bullets' do
               update_attrs[:bullet_ids] << bullet1.id
-              put :update, id: item, item: update_attrs, use_route: 'rez'
+              put :update, id: item, item: update_attrs
               item.reload.point_ids.must_equal [bullet1.id, bullet2.id]
             end
 
@@ -212,7 +215,7 @@ module Rez
               end
 
               it 'bullets not given in bullet_ids are removed from the item' do
-                put :update, id: item, item: update_attrs, use_route: 'rez'
+                put :update, id: item, item: update_attrs
                 item.reload.point_ids.wont_include bullet1.id
               end
             end
@@ -230,19 +233,19 @@ module Rez
             }}
 
             it "updates the Item's point_ids" do
-              put :update, id: item, item: update_attrs, use_route: 'rez'
+              put :update, id: item, item: update_attrs
               item.reload.point_ids.must_equal [paragraph1.id, paragraph2.id]
             end
 
             it "does not update invalid paragraph ids" do
               update_attrs[:paragraph_ids] << 1234
-              put :update, id: item, item: update_attrs, use_route: 'rez'
+              put :update, id: item, item: update_attrs
               item.reload.point_ids.wont_include 1234
             end
 
             it 'does not insert duplicate paragraphs' do
               update_attrs[:paragraph_ids] << paragraph1.id
-              put :update, id: item, item: update_attrs, use_route: 'rez'
+              put :update, id: item, item: update_attrs
               item.reload.point_ids.must_equal [paragraph1.id, paragraph2.id]
             end
 
@@ -254,7 +257,7 @@ module Rez
               end
 
               it 'paragraphs not given in paragraph_ids are removed from the item' do
-                put :update, id: item, item: update_attrs, use_route: 'rez'
+                put :update, id: item, item: update_attrs
                 item.reload.point_ids.wont_include paragraph1.id
               end
             end
@@ -264,7 +267,7 @@ module Rez
         describe "given an invalid item id" do
 
           it "responds with 404 Not Found" do
-            put :update, id: 'nope', item: update_attrs, use_route: 'rez'
+            put :update, id: 'nope', item: update_attrs
             response.status.must_equal 404
           end
         end
@@ -276,7 +279,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          put :update, id: item, item: update_attrs, use_route: 'rez'
+          put :update, id: item, item: update_attrs
           response.status.must_equal 401
         end
       end
@@ -296,12 +299,12 @@ module Rez
 
           it "destroys the item" do
             assert_difference('Item.count', -1) do
-              delete :destroy, id: @item, use_route: 'rez'
+              delete :destroy, id: @item
             end
           end 
 
           it "responds with 204 No Content" do
-            delete :destroy, id: @item, use_route: 'rez'
+            delete :destroy, id: @item
             response.status.must_equal 204
             response.body.must_equal ''
           end
@@ -310,7 +313,7 @@ module Rez
         describe "given an invalid Item id" do
 
           it "responds with 404 Not Found" do
-            delete :destroy, id: 'wrong', use_route: 'rez'
+            delete :destroy, id: 'wrong'
             response.status.must_equal 404
           end
         end
@@ -322,7 +325,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          delete :destroy, id: @item, use_route: 'rez'
+          delete :destroy, id: @item
           response.status.must_equal 401
         end
       end

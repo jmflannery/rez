@@ -2,6 +2,9 @@ require 'test_helper'
 
 module Rez
   describe AddressesController do
+    setup do
+      @routes = Engine.routes
+    end
 
     describe "POST create" do
 
@@ -10,23 +13,23 @@ module Rez
       describe "from an authenticated user" do
 
         it "returns HTTP created 201" do
-          post :create, address: address_attrs, use_route: 'rez'
+          post :create, address: address_attrs
           response.status.must_equal 201
         end
-      
+
         it "creates an address" do
           assert_difference('Address.count', 1) do
-            post :create, address: address_attrs, use_route: 'rez'
+            post :create, address: address_attrs
           end
         end
 
         it "returns the address in json format" do
-          post :create, address: address_attrs, use_route: 'rez'
+          post :create, address: address_attrs
           response.body.must_equal(AddressSerializer.new(assigns(:address)).to_json)
         end
 
         it "sets each permitted param" do
-          post :create, address: address_attrs, use_route: 'rez'
+          post :create, address: address_attrs
           json = JSON.parse(response.body)
           AddressesController.permitted_params.each do |param|
             json['address'][param.to_s].must_equal assigns[:address][param]
@@ -42,7 +45,7 @@ module Rez
       describe "given a valid address id" do
 
         it "gets the requested address as JSON" do
-          get :show, id: address, use_route: 'rez'
+          get :show, id: address
           response.body.must_equal(AddressSerializer.new(address).to_json)
         end
       end
@@ -50,7 +53,8 @@ module Rez
       describe "given an invalid address id" do
 
         it "responds with 404 Not Found" do
-          get :show, id: -1, use_route: 'rez'
+          # remove_instance_variable(:@resume)
+          get :show, id: '-1'
           response.status.must_equal 404
         end
       end
@@ -64,7 +68,7 @@ module Rez
         end
 
         it "returns the address for the given resume in JSON format" do
-          get :show, resume_id: @resume, use_route: 'rez'
+          get :show, resume_id: @resume
           response.body.must_equal(AddressSerializer.new(address).to_json)
         end
       end
@@ -76,7 +80,7 @@ module Rez
         end
 
         it "responds with 404 Not Found" do
-          get :show, resume_id: @resume, use_route: 'rez'
+          get :show, resume_id: @resume
           response.status.must_equal 404
         end
       end
@@ -84,7 +88,7 @@ module Rez
       describe "given an invalid resume_id" do
 
         it "responds with 404 Not Found" do
-          get :show, resume_id: -1, use_route: 'rez'
+          get :show, resume_id: -1
           response.status.must_equal 404
         end
       end
@@ -100,7 +104,7 @@ module Rez
       end
 
       it "gets all the addresses in JSON format" do
-        get :index, use_route: 'rez'
+        get :index
         serializer = ActiveModel::ArraySerializer.new(@addresses, each_serializer: AddressSerializer)
         response.body.must_equal({ addresses: serializer }.to_json)
       end
@@ -114,13 +118,13 @@ module Rez
       describe "given a valid address id" do
 
         it "updates the address record" do
-          put :update, id: address, address: update_attrs, use_route: 'rez'
+          put :update, id: address, address: update_attrs
           address.reload.building_number.must_equal('14013')
           address.county.must_equal('Los Angeles')
         end
 
         it "returns the updated address in JSON format" do
-          put :update, id: address, address: update_attrs, use_route: 'rez'
+          put :update, id: address, address: update_attrs
           response.body.must_equal(AddressSerializer.new(address.reload).to_json)
         end
       end
@@ -128,7 +132,7 @@ module Rez
       describe "given an invalid address id" do
 
         it "responds with 404 Not Found" do
-          put :update, id: -1, address: update_attrs, use_route: 'rez'
+          put :update, id: -1, address: update_attrs
           response.status.must_equal 404
         end
       end
@@ -142,12 +146,12 @@ module Rez
         
         it "destroys the address" do
           assert_difference('Address.count', -1) do
-            delete :destroy, id: @address, use_route: 'rez'
+            delete :destroy, id: @address
           end
         end 
 
         it "returns 204 No Content with empty body" do
-          delete :destroy, id: @address, use_route: 'rez'
+          delete :destroy, id: @address
           response.status.must_equal 204
           response.body.must_equal ''
         end
@@ -156,7 +160,7 @@ module Rez
       describe "given an invalid address id" do
 
         it "responds with 404 Not Found" do
-          delete :destroy, id: -1, use_route: 'rez'
+          delete :destroy, id: -1
           response.status.must_equal 404
         end
       end

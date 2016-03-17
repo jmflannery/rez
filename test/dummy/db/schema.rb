@@ -16,7 +16,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "rez_addresses", force: true do |t|
+  create_table "rez_addresses", force: :cascade do |t|
     t.text "building_number"
     t.text "street_name"
     t.text "secondary_address"
@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
     t.text "phone_number"
   end
 
-  create_table "rez_items", force: true do |t|
+  create_table "rez_items", force: :cascade do |t|
     t.text     "title"
     t.text     "heading"
     t.datetime "created_at"
@@ -38,7 +38,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
     t.integer  "point_ids",  default: [], array: true
   end
 
-  create_table "rez_points", force: true do |t|
+  create_table "rez_points", force: :cascade do |t|
     t.integer  "rank"
     t.text     "text"
     t.datetime "created_at"
@@ -46,7 +46,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
     t.text     "point_type"
   end
 
-  create_table "rez_profiles", force: true do |t|
+  create_table "rez_profiles", force: :cascade do |t|
     t.string   "firstname",  limit: 32
     t.string   "middlename", limit: 32
     t.string   "lastname",   limit: 32
@@ -59,7 +59,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
     t.string   "email"
   end
 
-  create_table "rez_resumes", force: true do |t|
+  create_table "rez_resumes", force: :cascade do |t|
     t.integer  "profile_id"
     t.integer  "address_id"
     t.datetime "created_at"
@@ -71,7 +71,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
 
   add_index "rez_resumes", ["user_id"], name: "index_rez_resumes_on_user_id", using: :btree
 
-  create_table "rez_sections", force: true do |t|
+  create_table "rez_sections", force: :cascade do |t|
     t.text     "name"
     t.text     "heading"
     t.text     "subheading"
@@ -80,7 +80,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
     t.datetime "updated_at"
   end
 
-  create_table "toke_tokens", force: true do |t|
+  create_table "toke_tokens", force: :cascade do |t|
     t.string   "key"
     t.integer  "user_id"
     t.datetime "expires_at"
@@ -91,7 +91,7 @@ ActiveRecord::Schema.define(version: 20160206141323) do
   add_index "toke_tokens", ["key"], name: "index_toke_tokens_on_key", unique: true, using: :btree
   add_index "toke_tokens", ["user_id"], name: "index_toke_tokens_on_user_id", using: :btree
 
-  create_table "toke_users", force: true do |t|
+  create_table "toke_users", force: :cascade do |t|
     t.string   "username"
     t.string   "password_digest"
     t.datetime "created_at"

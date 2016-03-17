@@ -37,7 +37,7 @@ module Rez
     private
 
     def set_sections
-      if @resume
+      if defined?(@resume)
         @sections = @resume.sections
       else
         @sections = Section.all

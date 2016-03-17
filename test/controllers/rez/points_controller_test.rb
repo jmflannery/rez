@@ -2,6 +2,9 @@ require 'test_helper'
 
 module Rez
   describe PointsController do
+    setup do
+      @routes = Engine.routes
+    end
 
     describe "POST create" do
 
@@ -14,18 +17,18 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 201 Created" do
-          post :create, point: attrs, use_route: 'rez'
+          post :create, point: attrs
           response.status.must_equal 201
         end
 
         it "creates a Point" do
           assert_difference('Point.count', 1) do
-            post :create, point: attrs, use_route: 'rez'
+            post :create, point: attrs
           end
         end
 
         it "responds with the created Point in JSON format" do
-          post :create, point: attrs, use_route: 'rez'
+          post :create, point: attrs
           json = JSON.parse(response.body)
           json['point']['text'].must_equal attrs[:text]
         end
@@ -35,7 +38,7 @@ module Rez
           let(:item) { FactoryGirl.create(:item) }
 
           it "will not add the Point to the Item if the Point has an invalid type" do
-            post :create, item_id: item.id, type: 'other', point: attrs, use_route: 'rez'
+            post :create, item_id: item.id, type: 'other', point: attrs
             json = JSON.parse(response.body)
             item.point_ids.wont_include json['point']['id']
           end
@@ -43,7 +46,7 @@ module Rez
           describe "given a point type" do
 
             it "creates a Point with the specified type and adds it to the Item" do
-              post :create, item_id: item.id, type: 'bullet', point: attrs, use_route: 'rez'
+              post :create, item_id: item.id, type: 'bullet', point: attrs
               json = JSON.parse(response.body)
               json['point']['point_type'].must_equal 'bullet'
               item.reload.point_ids.must_include json['point']['id']
@@ -55,12 +58,12 @@ module Rez
             let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }
 
             it "responds with 400 Bad Request" do
-              post :create, point: attrs, use_route: 'rez'
+              post :create, point: attrs
               response.status.must_equal 400
             end
 
             it "responds with an error message" do
-              post :create, point: attrs, use_route: 'rez'
+              post :create, point: attrs
               response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
             end
           end
@@ -69,7 +72,7 @@ module Rez
         describe "given a point type" do
 
           it "creates a Point with the specified type" do
-            post :create, type: 'bullet', point: attrs, use_route: 'rez'
+            post :create, type: 'bullet', point: attrs
             json = JSON.parse(response.body)
             json['point']['point_type'].must_equal 'bullet'
           end
@@ -80,12 +83,12 @@ module Rez
           let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }
 
           it "responds with 400 Bad Request" do
-            post :create, point: attrs, use_route: 'rez'
+            post :create, point: attrs
             response.status.must_equal 400
           end
 
           it "responds with an error message" do
-            post :create, point: attrs, use_route: 'rez'
+            post :create, point: attrs
             response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
           end
         end
@@ -97,7 +100,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          post :create, point: attrs, use_route: 'rez'
+          post :create, point: attrs
           response.status.must_equal 401
         end
       end
@@ -113,12 +116,12 @@ module Rez
       end
 
       it "responds with 200 OK" do
-        get :index, use_route: 'rez'
+        get :index
         response.status.must_equal 200
       end
 
       it "returns all the Points in JSON format" do
-        get :index, use_route: 'rez'
+        get :index
         serializer = ActiveModel::ArraySerializer.new(@points, each_serializer: PointSerializer)
         response.body.must_equal({ points: serializer }.to_json)
       end
@@ -132,7 +135,7 @@ module Rez
         end
 
         it "responds with all bullet type Points in JSON format" do
-          get :index, type: 'bullet', use_route: 'rez'
+          get :index, type: 'bullet'
           serializer = ActiveModel::ArraySerializer.new(@bullets, each_serializer: PointSerializer)
           response.body.must_equal({ points: serializer }.to_json)
         end
@@ -147,7 +150,7 @@ module Rez
         end
 
         it "responds with all paragraph type Points in JSON format" do
-          get :index, type: 'paragraph', use_route: 'rez'
+          get :index, type: 'paragraph'
           serializer = ActiveModel::ArraySerializer.new(@paragraphs, each_serializer: PointSerializer)
           response.body.must_equal({ points: serializer }.to_json)
         end
@@ -163,7 +166,7 @@ module Rez
         before do item.add_point(bullet2) end
 
         it "returns all the Item's Points in JSON format" do
-          get :index, item_id: item.id, use_route: 'rez'
+          get :index, item_id: item.id
           serializer = ActiveModel::ArraySerializer.new(item_points, each_serializer: PointSerializer)
           response.body.must_equal({ points: serializer }.to_json)
         end
@@ -180,7 +183,7 @@ module Rez
           end
 
           it "returns all the Item's bullet type Points in JSON format" do
-            get :index, item_id: item.id, type: 'bullet', use_route: 'rez'
+            get :index, item_id: item.id, type: 'bullet'
             serializer = ActiveModel::ArraySerializer.new(bullets, each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
@@ -192,7 +195,7 @@ module Rez
           let(:paragraphs) { [] }
 
           it "returns all the Item's paragraphs type Points in JSON format" do
-            get :index, item_id: item.id, type: 'paragraph', use_route: 'rez'
+            get :index, item_id: item.id, type: 'paragraph'
             serializer = ActiveModel::ArraySerializer.new(paragraphs, each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
@@ -207,12 +210,12 @@ module Rez
       describe "given a valid Point id" do
 
         it "responds with 200 OK" do
-          get :show, id: point, use_route: 'rez'
+          get :show, id: point
           response.status.must_equal 200
         end
 
         it "responds with the requested Point in JSON format" do
-          get :show, id: point, use_route: 'rez'
+          get :show, id: point
           response.body.must_equal(PointSerializer.new(point).to_json)
         end
       end
@@ -220,7 +223,7 @@ module Rez
       describe "given an invalid Point id" do
 
         it "responds with 404 Not Found" do
-          get :show, id: 'wrong', use_route: 'rez'
+          get :show, id: 'wrong'
           response.status.must_equal 404
         end
       end
@@ -240,18 +243,18 @@ module Rez
         describe "on successfull update" do
 
           it "responds with 200 OK" do
-            put :update, id: point, point: update_attrs, use_route: 'rez'
+            put :update, id: point, point: update_attrs
             response.status.must_equal 200
           end
 
           it "updates the point record" do
-            put :update, id: point, point: update_attrs, use_route: 'rez'
+            put :update, id: point, point: update_attrs
             point.reload.text.must_equal 'My Awesome Point'
             point.rank.must_equal 1
           end
 
           it "returns the updated point in JSON format" do
-            put :update, id: point, point: update_attrs, use_route: 'rez'
+            put :update, id: point, point: update_attrs
             response.body.must_equal(PointSerializer.new(point.reload).to_json)
           end
         end
@@ -259,7 +262,7 @@ module Rez
         describe "given an invalid point id" do
 
           it "responds with 404 Not Found" do
-            put :update, id: 'nope', point: update_attrs, use_route: 'rez'
+            put :update, id: 'nope', point: update_attrs
             response.status.must_equal 404
           end
         end
@@ -269,12 +272,12 @@ module Rez
           let(:attrs) {{ point_type: 'nonexistant' }}
 
           it "responds with 400 Bad Request" do
-            put :update, id: point, point: attrs, use_route: 'rez'
+            put :update, id: point, point: attrs
             response.status.must_equal 400
           end
 
           it "responds with an error message" do
-            put :update, id: point, point: attrs, use_route: 'rez'
+            put :update, id: point, point: attrs
             response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
           end
         end
@@ -286,7 +289,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          put :update, id: point, point: update_attrs, use_route: 'rez'
+          put :update, id: point, point: update_attrs
           response.status.must_equal 401
         end
       end
@@ -306,12 +309,12 @@ module Rez
 
           it "destroys the point" do
             assert_difference('Point.count', -1) do
-              delete :destroy, id: @point, use_route: 'rez'
+              delete :destroy, id: @point
             end
           end 
 
           it "responds with 204 No Content" do
-            delete :destroy, id: @point, use_route: 'rez'
+            delete :destroy, id: @point
             response.status.must_equal 204
             response.body.must_equal ''
           end
@@ -320,7 +323,7 @@ module Rez
         describe "given an invalid Point id" do
 
           it "responds with 404 Not Found" do
-            delete :destroy, id: 'wrong', use_route: 'rez'
+            delete :destroy, id: 'wrong'
             response.status.must_equal 404
           end
         end
@@ -332,7 +335,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          delete :destroy, id: @point, use_route: 'rez'
+          delete :destroy, id: @point
           response.status.must_equal 401
         end
       end

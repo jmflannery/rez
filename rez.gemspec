@@ -16,12 +16,13 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "~> 4.0.2"
-  s.add_dependency "active_model_serializers", "~> 0.8.1"
+  s.add_dependency "rails", "~> 4.2.6"
+  # s.add_dependency "active_model_serializers", "~> 0.10.0.rc4"
+  s.add_dependency "active_model_serializers", "~> 0.9.4"
 
   s.add_development_dependency "pg"
-  s.add_development_dependency "minitest-rails", "~> 0.9.2"
-  s.add_development_dependency "factory_girl_rails"
-  s.add_development_dependency "faker"
+  s.add_development_dependency "minitest-rails", "~> 2.2.0"
+  s.add_development_dependency "factory_girl_rails", "~> 4.6.0"
+  s.add_development_dependency "faker", "~> 1.3.0"
   s.add_development_dependency "database_cleaner"
 end

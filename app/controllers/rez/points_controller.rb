@@ -9,9 +9,9 @@ module Rez
 
     def create
       point = Point.new(point_params)
-      point.point_type = @type if @type
+      point.point_type = @type if defined?(@type)
       if point.save
-        if @item
+        if defined?(@item)
           if @type == 'bullet' || @type == 'paragraph'
             @item.add_point(point)
           end
@@ -63,11 +63,11 @@ module Rez
     end
 
     def set_points
-      association_name = "#{@type}s"
-      @points = @item.send(association_name) if @type && @item
-      @points = Point.send(association_name) if @type && !@item
-      @points = @item.points if !@type && @item
-      @points = Point.all if !@type && !@item
+      association_name = "#{@type}s" if defined?(@type)
+      @points = @item.send(association_name) if defined?(@type) && defined?(@item)
+      @points = Point.send(association_name) if defined?(@type) && !defined?(@item)
+      @points = @item.points if !defined?(@type) && defined?(@item)
+      @points = Point.all if !defined?(@type) && !defined?(@item)
     end
 
     def set_point

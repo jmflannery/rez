@@ -50,7 +50,7 @@ module Rez
     end
 
     def set_items
-      if @section
+      if defined? @section
         @items = @section.items
       else
         @items = Item.all
@@ -64,7 +64,7 @@ module Rez
     end
 
     def update_section
-      return unless @section && @item
+      return unless defined?(@section) && defined?(@item)
       @section.add_item(@item)
     end
 

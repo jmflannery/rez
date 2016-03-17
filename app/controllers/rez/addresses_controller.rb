@@ -41,7 +41,7 @@ module Rez
     end
 
     def set_address
-      if @resume
+      if defined?(@resume) && @resume
         @address = @resume.address
       else
         @address = Address.find_by(id: params[:id])

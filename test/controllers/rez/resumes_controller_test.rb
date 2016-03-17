@@ -2,6 +2,9 @@ require 'test_helper'
 
 module Rez
   describe ResumesController do
+    setup do
+      @routes = Engine.routes
+    end
 
     describe "POST create" do
 
@@ -16,18 +19,18 @@ module Rez
           let(:params) {{ name: 'My Resume' }}
 
           it "responds with 201 Created" do
-            post :create, resume: params, use_route: 'rez'
+            post :create, resume: params
             response.status.must_equal 201
           end
 
           it "creates a Resume" do
             assert_difference('Resume.count', 1) do
-              post :create, resume: params, use_route: 'rez'
+              post :create, resume: params
             end
           end
 
           it "returns the created Resume in JSON format" do
-            post :create, resume: params, use_route: 'rez'
+            post :create, resume: params
             response.body.must_equal ResumeSerializer.new(assigns(:resume)).to_json
           end
         end
@@ -37,12 +40,12 @@ module Rez
           let(:params) {{ name: '' }}
 
           it "responds with 400 Bad Request" do
-            post :create, resume: params, use_route: 'rez'
+            post :create, resume: params
             response.status.must_equal 400
           end
 
           it "returns a hash with the error message" do
-            post :create, resume: params, use_route: 'rez'
+            post :create, resume: params
             response.body.must_equal({name: ["can't be blank"]}.to_json)
           end
         end
@@ -54,7 +57,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          post :create, use_route: 'rez'
+          post :create
           response.status.must_equal 401
         end
       end
@@ -68,7 +71,7 @@ module Rez
       before do @resumes = [resume, resume2] end
 
       it "returns all the Resumes in JSON format" do
-        get :index, use_route: 'rez'
+        get :index
         serializer = ActiveModel::ArraySerializer.new(@resumes, each_serializer: ResumeSerializer)
         response.body.must_equal({ resumes: serializer }.to_json)
       end
@@ -81,7 +84,7 @@ module Rez
       describe "given a valid Resume id" do
 
         it "responds with the requested Resume in JSON format" do
-          get :show, id: resume, use_route: 'rez'
+          get :show, id: resume
           response.body.must_equal(ResumeSerializer.new(resume).to_json)
         end
       end
@@ -89,7 +92,7 @@ module Rez
       describe "given an invalid Resume id" do
 
         it "responds with 400 Bad Request" do
-          get :show, id: 'wrong', use_route: 'rez'
+          get :show, id: 'wrong'
           response.status.must_equal 400
         end
       end
@@ -109,12 +112,12 @@ module Rez
         describe "on successfull update" do
 
           it "updates the resume record" do
-            put :update, id: resume, resume: update_attrs, use_route: 'rez'
+            put :update, id: resume, resume: update_attrs
             resume.reload.name.must_equal('My Awesome Resume')
           end
 
           it "returns the updated resume in JSON format" do
-            put :update, id: resume, resume: update_attrs, use_route: 'rez'
+            put :update, id: resume, resume: update_attrs
             response.body.must_equal(ResumeSerializer.new(resume.reload).to_json)
           end
 
@@ -126,12 +129,12 @@ module Rez
               let(:update_attrs) {{ profile_id: profile.id, name: 'Business Resume' }}
 
               it "updates the Resume's Profile" do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 resume.reload.profile.id.must_equal profile.id
               end
 
               it "returns the updated resume in JSON format with embedded Profile" do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 json = JSON.parse(response.body)
                 json['resume']['profile'].to_json.must_equal ProfileSerializer.new(profile, root: false).to_json
                 json['resume']['name'].must_equal 'Business Resume'
@@ -143,12 +146,12 @@ module Rez
               let(:update_attrs) {{ profile_id: 'wrong' }}
 
               it 'responds with 400 Bad Request' do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 response.status.must_equal 400
               end
 
               it 'responds with a JSON formatted error message' do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 response.body.must_equal({ profile_id: "Profile wrong not found" }.to_json)
               end
             end
@@ -162,12 +165,12 @@ module Rez
               let(:update_attrs) {{ address_id: address.id, name: 'Fun Resume' }}
 
               it "updates the Resume's Address" do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 resume.reload.address.id.must_equal address.id
               end
 
               it "returns the updated resume in JSON format with address_id" do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 json = JSON.parse(response.body)
                 json['resume']['address'].to_json.must_equal AddressSerializer.new(address, root: false).to_json
                 json['resume']['name'].must_equal 'Fun Resume'
@@ -179,12 +182,12 @@ module Rez
               let(:update_attrs) {{ address_id: 'wrong' }}
 
               it 'responds with 400 Bad Request' do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 response.status.must_equal 400
               end
 
               it 'responds with a JSON formatted error message' do
-                put :update, id: resume, resume: update_attrs, use_route: 'rez'
+                put :update, id: resume, resume: update_attrs
                 response.body.must_equal({ address_id: "Address wrong not found" }.to_json)
               end
             end
@@ -197,26 +200,26 @@ module Rez
             let(:update_attrs) {{ section_ids: [section1.id, section2.id], name: 'Fun Resume' }}
 
             it "updates the Resumes Section's" do
-              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              put :update, id: resume, resume: update_attrs
               resume.reload.section_ids.must_equal [section1.id, section2.id]
             end
 
             it 'does not update invalid section ids' do
               update_attrs[:section_ids] << 1234
-              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              put :update, id: resume, resume: update_attrs
               resume.reload.section_ids.wont_include 1234
             end
 
             it 'does not insert duplicate sections' do
               update_attrs[:section_ids] << section1.id
-              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              put :update, id: resume, resume: update_attrs
               resume.reload.section_ids.must_equal [section1.id, section2.id]
             end
 
             it 'removes sections from the resume that are not given in section_ids' do
               resume.add_section(section1)
               update_attrs[:section_ids].delete_at(0)
-              put :update, id: resume, resume: update_attrs, use_route: 'rez'
+              put :update, id: resume, resume: update_attrs
               resume.reload.sections.wont_include section1
             end
           end
@@ -225,7 +228,7 @@ module Rez
         describe "given an invalid resume id" do
 
           it "responds with 400 Bad Request" do
-            put :update, id: 'nope', resume: update_attrs, use_route: 'rez'
+            put :update, id: 'nope', resume: update_attrs
             response.status.must_equal 400
           end
         end
@@ -235,12 +238,12 @@ module Rez
           let(:invalid_attrs) {{ name: '' }}
 
           it "responds with 422 Unprocessable Entity" do
-            put :update, id: resume, resume: invalid_attrs, use_route: 'rez'
+            put :update, id: resume, resume: invalid_attrs
             response.status.must_equal 422
           end
 
           it "returns the errors in JSON format" do
-            put :update, id: resume, resume: invalid_attrs, use_route: 'rez'
+            put :update, id: resume, resume: invalid_attrs
             response.body.must_equal({ name: ["can't be blank"]}.to_json)
           end
         end
@@ -252,7 +255,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          put :update, id: resume, resume: update_attrs, use_route: 'rez'
+          put :update, id: resume, resume: update_attrs
           response.status.must_equal 401
         end
       end
@@ -272,12 +275,12 @@ module Rez
 
           it "destroys the resume" do
             assert_difference('Resume.count', -1) do
-              delete :destroy, id: @resume, use_route: 'rez'
+              delete :destroy, id: @resume
             end
           end
 
           it "responds with 204 No Content" do
-            delete :destroy, id: @resume, use_route: 'rez'
+            delete :destroy, id: @resume
             response.status.must_equal 204
             response.body.must_equal ''
           end
@@ -286,7 +289,7 @@ module Rez
         describe "given an invalid Resume id" do
 
           it "responds with 400 Bad Request" do
-            delete :destroy, id: 'wrong', use_route: 'rez'
+            delete :destroy, id: 'wrong'
             response.status.must_equal 400
           end
         end
@@ -298,7 +301,7 @@ module Rez
         before do request.headers['X-Toke-Key'] = token.key end
 
         it "responds with 401 Unauthorized" do
-          delete :destroy, id: @resume, use_route: 'rez'
+          delete :destroy, id: @resume
           response.status.must_equal 401
         end
       end

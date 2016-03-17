@@ -38,7 +38,7 @@ module Rez
     end
 
     def set_profile
-      if @resume
+      if defined? @resume
         @profile = @resume.profile
       else
         @profile = Profile.find_by(id: params[:id])
