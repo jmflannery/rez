@@ -4,6 +4,6 @@ module Rez
 
     has_one :profile
     has_one :address
-    has_many :sections
+    has_many :items
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160206141323) do
+ActiveRecord::Schema.define(version: 20160323020306) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,12 +38,34 @@ ActiveRecord::Schema.define(version: 20160206141323) do
     t.integer  "point_ids",  default: [], array: true
   end
 
+  create_table "rez_items_items", id: false, force: :cascade do |t|
+    t.integer "item_id"
+  end
+
+  add_index "rez_items_items", ["item_id"], name: "index_rez_items_items_on_item_id", using: :btree
+
+  create_table "rez_items_points", id: false, force: :cascade do |t|
+    t.integer "item_id"
+    t.integer "point_id"
+  end
+
+  add_index "rez_items_points", ["item_id"], name: "index_rez_items_points_on_item_id", using: :btree
+  add_index "rez_items_points", ["point_id"], name: "index_rez_items_points_on_point_id", using: :btree
+
+  create_table "rez_items_resumes", id: false, force: :cascade do |t|
+    t.integer "resume_id"
+    t.integer "item_id"
+  end
+
+  add_index "rez_items_resumes", ["item_id"], name: "index_rez_items_resumes_on_item_id", using: :btree
+  add_index "rez_items_resumes", ["resume_id"], name: "index_rez_items_resumes_on_resume_id", using: :btree
+
   create_table "rez_points", force: :cascade do |t|
     t.integer  "rank"
     t.text     "text"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "point_type"
+    t.integer  "point_type"
   end
 
   create_table "rez_profiles", force: :cascade do |t|

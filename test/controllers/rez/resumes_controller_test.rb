@@ -193,34 +193,34 @@ module Rez
             end
           end
 
-          describe 'updating the Sections' do
+          describe 'updating the Items' do
 
-            let(:section1) { FactoryGirl.create(:section) }
-            let(:section2) { FactoryGirl.create(:section) }
-            let(:update_attrs) {{ section_ids: [section1.id, section2.id], name: 'Fun Resume' }}
+            let(:item1) { FactoryGirl.create(:item) }
+            let(:item2) { FactoryGirl.create(:item) }
+            let(:update_attrs) {{ item_ids: [item1.id, item2.id], name: 'Fun Resume' }}
 
-            it "updates the Resumes Section's" do
+            it "updates the Resumes Item's" do
               put :update, id: resume, resume: update_attrs
-              resume.reload.section_ids.must_equal [section1.id, section2.id]
+              resume.reload.item_ids.must_equal [item1.id, item2.id]
             end
 
-            it 'does not update invalid section ids' do
-              update_attrs[:section_ids] << 1234
+            it 'does not update invalid item ids' do
+              update_attrs[:item_ids] << 1234
               put :update, id: resume, resume: update_attrs
-              resume.reload.section_ids.wont_include 1234
+              resume.reload.item_ids.wont_include 1234
             end
 
-            it 'does not insert duplicate sections' do
-              update_attrs[:section_ids] << section1.id
+            it 'does not insert duplicate items' do
+              update_attrs[:item_ids] << item1.id
               put :update, id: resume, resume: update_attrs
-              resume.reload.section_ids.must_equal [section1.id, section2.id]
+              resume.reload.item_ids.must_equal [item1.id, item2.id]
             end
 
-            it 'removes sections from the resume that are not given in section_ids' do
-              resume.add_section(section1)
-              update_attrs[:section_ids].delete_at(0)
+            it 'removes items from the resume that are not given in item_ids' do
+              resume.items << item1
+              update_attrs[:item_ids].delete_at(0)
               put :update, id: resume, resume: update_attrs
-              resume.reload.sections.wont_include section1
+              resume.reload.items.wont_include item1
             end
           end
         end
@@ -308,4 +308,3 @@ module Rez
     end
   end
 end
-

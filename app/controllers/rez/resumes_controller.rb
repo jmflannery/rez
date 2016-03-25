@@ -5,7 +5,7 @@ module Rez
     before_action :set_resume, only: [:show, :update, :destroy]
     before_action :update_profile, only: [:update]
     before_action :update_address, only: [:update]
-    before_action :update_sections, only: [:update]
+    before_action :update_items, only: [:update]
 
     def create
       @resume = Resume.new(resume_params)
@@ -71,16 +71,16 @@ module Rez
       params[:resume].delete(:address_id)
     end
 
-    def update_sections
-      @resume.sections = section_params if section_params
-      params[:resume].delete(:section_ids)
-    end
-
-    def section_params
-      return unless params[:resume][:section_ids]
-      params[:resume][:section_ids].uniq.map { |section_id|
-        Section.find_by(id: section_id)
-      }.reject { |section| section.nil? }
+    def update_items
+      return unless params[:resume][:item_ids]
+      unless params[:resume][:item_ids].empty?
+        @resume.items.delete_all
+        item_ids = params[:resume][:item_ids].uniq.map do |id|
+          id if Item.exists?(id)
+        end.compact
+        @resume.item_ids = item_ids
+        params[:resume].delete(:item_ids)
+      end
     end
 
     def resume_params

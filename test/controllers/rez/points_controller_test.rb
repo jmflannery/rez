@@ -30,6 +30,7 @@ module Rez
         it "responds with the created Point in JSON format" do
           post :create, point: attrs
           json = JSON.parse(response.body)
+          json['point']['id'].to_s.must_match /\d+/
           json['point']['text'].must_equal attrs[:text]
         end
 
@@ -37,59 +38,28 @@ module Rez
 
           let(:item) { FactoryGirl.create(:item) }
 
-          it "will not add the Point to the Item if the Point has an invalid type" do
-            post :create, item_id: item.id, type: 'other', point: attrs
+          it "creates a Point with the specified type and adds it to the Item" do
+            post :create, item_id: item.id, point: attrs
             json = JSON.parse(response.body)
-            item.point_ids.wont_include json['point']['id']
-          end
-
-          describe "given a point type" do
-
-            it "creates a Point with the specified type and adds it to the Item" do
-              post :create, item_id: item.id, type: 'bullet', point: attrs
-              json = JSON.parse(response.body)
-              json['point']['point_type'].must_equal 'bullet'
-              item.reload.point_ids.must_include json['point']['id']
-            end
+            json['point']['point_type'].must_equal 'paragraph'
+            json['point']['id'].to_s.must_match /\d+/
+            item.reload.point_ids.must_include json['point']['id']
           end
 
           describe "given an invalid point_type" do
 
             let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }
 
-            it "responds with 400 Bad Request" do
+            it "responds with 400 Bad Request and an error message" do
               post :create, point: attrs
               response.status.must_equal 400
+              response.body.must_equal %q({"point_type":["'nonexistant' is not a valid point_type"]})
             end
 
-            it "responds with an error message" do
+            it "will not add the point to the item" do
               post :create, point: attrs
-              response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
+              item.point_ids.must_be :empty?
             end
-          end
-        end
-
-        describe "given a point type" do
-
-          it "creates a Point with the specified type" do
-            post :create, type: 'bullet', point: attrs
-            json = JSON.parse(response.body)
-            json['point']['point_type'].must_equal 'bullet'
-          end
-        end
-
-        describe "given an invalid point_type" do
-
-          let(:attrs) { FactoryGirl.attributes_for(:paragraph, point_type: 'nonexistant') }
-
-          it "responds with 400 Bad Request" do
-            post :create, point: attrs
-            response.status.must_equal 400
-          end
-
-          it "responds with an error message" do
-            post :create, point: attrs
-            response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
           end
         end
       end
@@ -109,7 +79,9 @@ module Rez
     describe "GET index" do
 
       let(:paragraph) { FactoryGirl.create(:paragraph) }
+      # let(:paragraph2) { FactoryGirl.create(:paragraph) }
       let(:bullet) { FactoryGirl.create(:bullet) }
+      # let(:bullet2) { FactoryGirl.create(:bullet) }
 
       before do
         @points = [paragraph, bullet]
@@ -128,10 +100,8 @@ module Rez
 
       describe "when type=bullet is given" do
 
-        let(:bullet2) { FactoryGirl.create(:bullet) }
-
         before do
-          @bullets = [bullet, bullet2]
+          @bullets = [bullet]
         end
 
         it "responds with all bullet type Points in JSON format" do
@@ -143,10 +113,8 @@ module Rez
 
       describe "when type=paragraph is given" do
 
-        let(:paragraph2) { FactoryGirl.create(:paragraph) }
-
         before do
-          @paragraphs = [paragraph, paragraph2]
+          @paragraphs = [paragraph]
         end
 
         it "responds with all paragraph type Points in JSON format" do
@@ -159,44 +127,34 @@ module Rez
       describe 'given an item_id' do
 
         let(:item) { FactoryGirl.create(:item) }
-        let(:paragraph2) { FactoryGirl.create(:paragraph) }
         let(:bullet2) { FactoryGirl.create(:bullet) }
-        let(:item_points) { [bullet2] }
+        let(:paragraph2) { FactoryGirl.create(:paragraph) }
 
-        before do item.add_point(bullet2) end
+        before do
+          @points = [paragraph, bullet, paragraph2, bullet2]
+          item.points << bullet << bullet2 << paragraph << paragraph2
+        end
 
         it "returns all the Item's Points in JSON format" do
           get :index, item_id: item.id
-          serializer = ActiveModel::ArraySerializer.new(item_points, each_serializer: PointSerializer)
+          serializer = ActiveModel::ArraySerializer.new(@points, each_serializer: PointSerializer)
           response.body.must_equal({ points: serializer }.to_json)
         end
 
         describe "when type=bullet is given" do
 
-          let(:bullet3) { FactoryGirl.create(:bullet) }
-          let(:bullets) { [bullet2, bullet3] }
-          let(:item_points) { [bullet2, bullet3] }
-
-          before do
-            item.add_point(bullet2)
-            item.add_point(bullet3)
-          end
-
           it "returns all the Item's bullet type Points in JSON format" do
             get :index, item_id: item.id, type: 'bullet'
-            serializer = ActiveModel::ArraySerializer.new(bullets, each_serializer: PointSerializer)
+            serializer = ActiveModel::ArraySerializer.new([bullet, bullet2], each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
         end
 
         describe "when type=paragraph is given" do
 
-          let(:paragraph3) { FactoryGirl.create(:paragraph) }
-          let(:paragraphs) { [] }
-
           it "returns all the Item's paragraphs type Points in JSON format" do
             get :index, item_id: item.id, type: 'paragraph'
-            serializer = ActiveModel::ArraySerializer.new(paragraphs, each_serializer: PointSerializer)
+            serializer = ActiveModel::ArraySerializer.new([paragraph, paragraph2], each_serializer: PointSerializer)
             response.body.must_equal({ points: serializer }.to_json)
           end
         end
@@ -278,7 +236,7 @@ module Rez
 
           it "responds with an error message" do
             put :update, id: point, point: attrs
-            response.body.must_equal %q({"point_type":["nonexistant is not a valid type"]})
+            response.body.must_equal %q({"point_type":["'nonexistant' is not a valid point_type"]})
           end
         end
       end
@@ -304,14 +262,14 @@ module Rez
         let(:current_user) { FactoryGirl.create(:user) }
         let(:token) { FactoryGirl.create(:token, user: current_user) }
         before do request.headers['X-Toke-Key'] = token.key end
-      
+
         describe "given a valid Point id" do
 
           it "destroys the point" do
             assert_difference('Point.count', -1) do
               delete :destroy, id: @point
             end
-          end 
+          end
 
           it "responds with 204 No Content" do
             delete :destroy, id: @point

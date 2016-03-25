@@ -9,16 +9,17 @@ module Rez
 
     def create
       point = Point.new(point_params)
-      point.point_type = @type if defined?(@type)
       if point.save
-        if defined?(@item)
-          if @type == 'bullet' || @type == 'paragraph'
-            @item.add_point(point)
-          end
-        end
+        @item.points << point if defined?(@item)
         render json: point, status: :created
       else
         render json: point.errors, status: :bad_request
+      end
+    rescue ArgumentError => e
+      if /not a valid point_type/ =~ e.message
+        render json: { point_type: [e.message] }, status: :bad_request
+      else
+        head :bad_request
       end
     end
 
@@ -35,6 +36,12 @@ module Rez
         render json: @point
       else
         render json: @point.errors, status: :bad_request
+      end
+    rescue ArgumentError => e
+      if /not a valid point_type/ =~ e.message
+        render json: { point_type: [e.message] }, status: :bad_request
+      else
+        head :bad_request
       end
     end
 
@@ -58,15 +65,16 @@ module Rez
           @type = 'bullet'
         elsif params[:type] = 'paragraph'
           @type = 'paragraph'
+        else
+          render json: { point_type: 'invalid type' }, status: :bad_request
         end
       end
     end
 
     def set_points
-      association_name = "#{@type}s" if defined?(@type)
-      @points = @item.send(association_name) if defined?(@type) && defined?(@item)
-      @points = Point.send(association_name) if defined?(@type) && !defined?(@item)
+      @points = @item.points.send(@type) if defined?(@type) && defined?(@item)
       @points = @item.points if !defined?(@type) && defined?(@item)
+      @points = Point.send(@type) if defined?(@type) && !defined?(@item)
       @points = Point.all if !defined?(@type) && !defined?(@item)
     end
 

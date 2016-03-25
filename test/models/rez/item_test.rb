@@ -11,43 +11,62 @@ module Rez
 
     let(:subject) { Item.new(attrs) }
 
+    it 'should be valid with valid attrs' do
+      subject.must_be :valid?
+    end
+
     it 'has a valid Factory' do
       FactoryGirl.build(:item).must_be :valid?
     end
 
-    it "initialy has no points" do
-      subject.points.must_be_empty
+    describe 'has many Subitems' do
+
+      let(:subitem1) { FactoryGirl.create(:item) }
+      let(:subitem2) { FactoryGirl.create(:item) }
+
+      it 'initially has no Subitems' do
+        subject.subitems.must_be_empty
+      end
+
+      it 'can have many Subitems' do
+        subject.subitems << subitem1
+        subject.subitems << subitem2
+        subject.subitem_ids.to_a.must_include subitem1.id
+        subject.subitem_ids.to_a.must_include subitem2.id
+      end
+
+      it 'can have subitems of subitems' do
+        subject.subitems << subitem1
+        subitem1.subitems << subitem2
+        subitem1.subitems.each
+        subject.subitem_ids.must_include subitem1.id
+        subitem1.subitem_ids.must_include subitem2.id
+      end
+
+      it 'can be both an item and a subitem' do
+        subitem1.subitems << subitem2
+        subitem2.subitems << subitem1
+        subitem1.subitems.each
+        subitem2.subitems.each
+        subitem1.subitem_ids.must_include subitem2.id
+        subitem2.subitem_ids.must_include subitem1.id
+      end
     end
 
-    describe 'Points' do
+    describe 'has many Points' do
 
       let(:bullet) { FactoryGirl.create(:bullet) }
-      let(:bullet2) { FactoryGirl.create(:bullet) }
       let(:paragraph) { FactoryGirl.create(:paragraph) }
-      let(:paragraph2) { FactoryGirl.create(:paragraph) }
 
-      before do
-        subject.add_point(bullet)
-        subject.add_point(bullet2)
-        subject.add_point(paragraph)
-        subject.add_point(paragraph2)
+      it 'initially has no Points' do
+        subject.points.must_be_empty
       end
 
-      it "adds Bullet and Paragraph type Points to itself" do
-        subject.points.must_equal [bullet, bullet2, paragraph, paragraph2]
-      end
-
-      it "has a list of points that are type bullet" do
-        subject.bullets.must_equal [bullet, bullet2]
-      end
-
-      it "has a list of points that are type paragraph" do
-        subject.paragraphs.must_equal [paragraph, paragraph2]
-      end
-
-      it "can replace it's Points with a new set of Points" do
-        subject.points = [bullet, paragraph]
-        subject.points.must_equal [bullet, paragraph]
+      it 'can have many points' do
+        subject.points << bullet
+        subject.points << paragraph
+        subject.points.must_include bullet
+        subject.points.must_include paragraph
       end
     end
   end

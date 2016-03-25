@@ -38,7 +38,7 @@ module Rez
 
     def set_sections
       if defined?(@resume)
-        @sections = @resume.sections
+        # @sections = @resume.sections
       else
         @sections = Section.all
       end

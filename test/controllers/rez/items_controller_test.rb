@@ -210,7 +210,7 @@ module Rez
             describe 'when the item already has bullet(s)' do
 
               before do
-                item.add_point bullet1
+                item.points << bullet1
                 update_attrs[:bullet_ids].delete_at(0)
               end
 
@@ -252,7 +252,7 @@ module Rez
             describe 'when the item already has paragraph(s)' do
 
               before do
-                item.add_point paragraph1
+                item.points << paragraph1
                 update_attrs[:paragraph_ids].delete_at(0)
               end
 

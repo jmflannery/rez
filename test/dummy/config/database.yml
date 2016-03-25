@@ -1,7 +1,7 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: rez_dummy_development
+  database: rez_dummy_development_rewrite
   pool: 5
   host: localhost
   username: jack
@@ -10,7 +10,7 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  database: rez_dummy_test
+  database: rez_dummy_test_rewrite
   pool: 5
   host: localhost
   username: jack

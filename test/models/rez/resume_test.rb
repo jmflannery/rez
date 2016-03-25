@@ -20,27 +20,47 @@ module Rez
       subject.user.id.must_equal user.id
     end
 
-    describe 'Sections assoctiation' do
+    describe 'belongs to Profile' do
+      let(:profile) { FactoryGirl.create(:profile) }
 
-      let(:section1) { FactoryGirl.create(:section) }
-      let(:section2) { FactoryGirl.create(:section) }
-
-      it 'initially has no Sections' do
-        subject.sections.must_be_empty
+      it 'initially has no profile' do
+        subject.profile.must_equal nil
       end
 
-      it 'can add Sections to itself' do
-        subject.add_section(section1)
-        subject.add_section(section2)
-        subject.sections.must_equal [section1, section2]
+      it 'belongs to a profile' do
+        subject.profile = profile
+        subject.profile_id.must_equal profile.id
+      end
+    end
+
+    describe 'belongs to Address' do
+      let(:address) { FactoryGirl.create(:address) }
+
+      it 'initially has no address' do
+        subject.address.must_equal nil
       end
 
-      it "can replace it's Sections with a new set of Sections" do
-        subject.add_section(FactoryGirl.create(:section))
-        subject.sections = [section1, section2]
-        subject.sections.must_equal [section1, section2]
+      it 'belongs to a address' do
+        subject.address = address
+        subject.address_id.must_equal address.id
+      end
+    end
+
+    describe 'items' do
+
+      let(:item1) { FactoryGirl.create(:item) }
+      let(:item2) { FactoryGirl.create(:item) }
+
+      it 'initially has no Items' do
+        subject.items.must_be_empty
+      end
+
+      it 'can have many Items' do
+        subject.items << item1
+        subject.items << item2
+        subject.items.must_include item1
+        subject.items.must_include item2
       end
     end
   end
 end
-
