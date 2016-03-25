@@ -11,7 +11,7 @@ PATH
   specs:
     rez (0.0.1)
       active_model_serializers (~> 0.9.4)
-      rails (~> 4.2.6)
+      rails
 
 GEM
   remote: https://rubygems.org/
