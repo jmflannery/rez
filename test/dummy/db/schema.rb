@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160323020306) do
+ActiveRecord::Schema.define(version: 20160325034974) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -61,11 +61,11 @@ ActiveRecord::Schema.define(version: 20160323020306) do
   add_index "rez_items_resumes", ["resume_id"], name: "index_rez_items_resumes_on_resume_id", using: :btree
 
   create_table "rez_points", force: :cascade do |t|
-    t.integer  "rank"
     t.text     "text"
+    t.integer  "point_type"
+    t.integer  "rank"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "point_type"
   end
 
   create_table "rez_profiles", force: :cascade do |t|
