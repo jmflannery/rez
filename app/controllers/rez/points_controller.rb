@@ -2,8 +2,8 @@ module Rez
   class PointsController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
-    before_action :set_type, only: [:create, :index]
     before_action :set_item, only: [:create, :index]
+    before_action :set_type, only: [:index]
     before_action :set_points, only: [:index]
     before_action :set_point, only: [:show, :update, :destroy]
 
@@ -58,13 +58,10 @@ module Rez
       end
     end
 
-    #TODO refactor
     def set_type
       if params[:type]
-        if params[:type] == 'bullet'
-          @type = 'bullet'
-        elsif params[:type] = 'paragraph'
-          @type = 'paragraph'
+        if %w(bullet paragraph).include? params[:type]
+          @type = params[:type]
         else
           render json: { point_type: 'invalid type' }, status: :bad_request
         end
@@ -73,7 +70,7 @@ module Rez
 
     def set_points
       @points = @item.points.send(@type) if defined?(@type) && defined?(@item)
-      @points = @item.points if !defined?(@type) && defined?(@item)
+      @points = @item.points if defined?(@item) && !defined?(@type)
       @points = Point.send(@type) if defined?(@type) && !defined?(@item)
       @points = Point.all if !defined?(@type) && !defined?(@item)
     end
