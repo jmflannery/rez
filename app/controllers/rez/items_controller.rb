@@ -2,18 +2,20 @@ module Rez
   class ItemsController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
-    before_action :set_section, only: [:create, :index]
+    before_action :set_resume, only: [:create, :index, :update]
     before_action :set_item, only: [:show, :update, :destroy]
     before_action :set_items, only: [:index]
     before_action :update_points, only: [:update]
-    after_action :update_section, only: [:create]
+    after_action :update_resume, only: [:create, :update]
 
     def create
+      params[:item].delete(:bullet_ids) if params[:item].has_key?(:bullet_ids)
+      params[:item].delete(:paragraph_ids) if params[:item].has_key?(:paragraph_ids)
       @item = Item.new(item_params)
       if @item.save
         render json: @item, status: :created
       else
-        render json: @item.errors, status: :bad_request
+        render json: @item.errors, status: :unprocessable_entity
       end
     end
 
@@ -26,8 +28,11 @@ module Rez
     end
 
     def update
-      @item.update(item_params)
-      render json: @item
+      if @item.update(item_params)
+        render json: @item
+      else
+        render json: @item.errors, status: :unprocessable_entity
+      end
     end
 
     def destroy
@@ -37,10 +42,10 @@ module Rez
 
     private
 
-    def set_section
-      if params[:section_id]
-        @section = Section.find_by(id: params[:section_id])
-        head :not_found unless @section
+    def set_resume
+      if params[:resume_id]
+        @resume = Resume.find_by(id: params[:resume_id])
+        head :not_found unless @resume
       end
     end
 
@@ -50,29 +55,25 @@ module Rez
     end
 
     def set_items
-      if defined? @section
-        @items = @section.items
-      else
-        @items = Item.all
-      end
+      @items = defined?(@resume) ? @resume.items : Item.all
     end
 
     def update_points
-      @item.points = point_params if point_params
-      params[:item].delete(:bullet_ids) if params[:item][:bullet_ids]
-      params[:item].delete(:paragraph_ids) if params[:item][:paragraph_ids]
+      return unless params[:item] && (params[:item].has_key?(:bullet_ids) || params[:item].has_key?(:paragraph_ids))
+      @item.points = point_params
+      params[:item].delete(:bullet_ids) if params[:item].has_key?(:bullet_ids)
+      params[:item].delete(:paragraph_ids) if params[:item].has_key?(:paragraph_ids)
     end
 
-    def update_section
-      return unless defined?(@section) && defined?(@item)
-      @section.add_item(@item)
+    def update_resume
+      return unless defined?(@item) && @item.persisted? && defined?(@resume)
+      @resume.items << @item
     end
 
     def point_params
-      return unless params[:item][:bullet_ids] || params[:item][:paragraph_ids]
-      (params[:item][:bullet_ids] || []).concat(params[:item][:paragraph_ids] || []).uniq.map { |point_id|
+      (params[:item].fetch(:bullet_ids, []) || []).concat(params[:item].fetch(:paragraph_ids, []) || []).uniq.map do |point_id|
         Point.find_by(id: point_id)
-      }.reject { |point| point.nil? }
+      end.compact
     end
 
     def item_params
@@ -80,4 +81,3 @@ module Rez
     end
   end
 end
-

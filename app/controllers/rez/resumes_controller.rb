@@ -8,11 +8,12 @@ module Rez
     before_action :update_items, only: [:update]
 
     def create
+      params[:resume].delete(:item_ids) if params[:resume].has_key?(:item_ids)
       @resume = Resume.new(resume_params)
       if @resume.save
         render json: @resume, status: :created
       else
-        render json: @resume.errors, status: :bad_request
+        render json: @resume.errors, status: :unprocessable_entity
       end
     end
 
@@ -41,7 +42,7 @@ module Rez
 
     def set_resume
       @resume = Resume.find_by(id: params[:id])
-      head :bad_request unless @resume
+      head :not_found unless @resume
     end
 
     def update_profile
@@ -72,15 +73,12 @@ module Rez
     end
 
     def update_items
-      return unless params[:resume][:item_ids]
-      unless params[:resume][:item_ids].empty?
-        @resume.items.delete_all
-        item_ids = params[:resume][:item_ids].uniq.map do |id|
-          id if Item.exists?(id)
-        end.compact
-        @resume.item_ids = item_ids
-        params[:resume].delete(:item_ids)
-      end
+      return unless params[:resume].has_key?(:item_ids)
+      items = (params[:resume].fetch(:item_ids, []) || []).uniq.map do |item_id|
+        Item.find_by(id: item_id)
+      end.compact
+      @resume.items = items
+      params[:resume].delete(:item_ids)
     end
 
     def resume_params

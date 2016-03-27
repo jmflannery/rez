@@ -41,7 +41,7 @@ module Rez
 
           it "responds with 400 Bad Request" do
             post :create, resume: params
-            response.status.must_equal 400
+            response.status.must_equal 422
           end
 
           it "returns a hash with the error message" do
@@ -93,7 +93,7 @@ module Rez
 
         it "responds with 400 Bad Request" do
           get :show, id: 'wrong'
-          response.status.must_equal 400
+          response.status.must_equal 404
         end
       end
     end
@@ -222,14 +222,21 @@ module Rez
               put :update, id: resume, resume: update_attrs
               resume.reload.items.wont_include item1
             end
+
+            it 'removes all items if items_ids key is nil or empty' do
+              resume.items << item1 << item2
+              update_attrs[:item_ids] = nil
+              put :update, id: resume, resume: update_attrs
+              resume.reload.items.must_be_empty
+            end
           end
         end
 
         describe "given an invalid resume id" do
 
-          it "responds with 400 Bad Request" do
+          it "responds with 404 Bad Request" do
             put :update, id: 'nope', resume: update_attrs
-            response.status.must_equal 400
+            response.status.must_equal 404
           end
         end
 
@@ -288,9 +295,9 @@ module Rez
 
         describe "given an invalid Resume id" do
 
-          it "responds with 400 Bad Request" do
+          it "responds with 404 Bad Request" do
             delete :destroy, id: 'wrong'
-            response.status.must_equal 400
+            response.status.must_equal 404
           end
         end
       end

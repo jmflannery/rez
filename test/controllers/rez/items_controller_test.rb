@@ -39,14 +39,14 @@ module Rez
           response.body.must_equal ItemSerializer.new(assigns(:item)).to_json
         end
 
-        describe 'given a valid section id' do
+        describe 'given a valid resume id' do
 
-          let(:section) { FactoryGirl.create(:section) }
+          let(:resume) { FactoryGirl.create(:resume) }
 
-          it 'adds the new item to the section' do
-            post :create, item: item_attrs, section_id: section.id
+          it 'adds the new item to the resume' do
+            post :create, item: item_attrs, resume_id: resume.id
             id = JSON.parse(response.body)['item']['id']
-            section.reload.item_ids.must_include id
+            resume.reload.item_ids.must_include id
           end
         end
 
@@ -56,7 +56,7 @@ module Rez
 
           it "responds with 400 Bad Request" do
             post :create, item: item_attrs
-            response.status.must_equal 400
+            response.status.must_equal 422
           end
 
           it "returns a hash with the error message" do
@@ -98,28 +98,30 @@ module Rez
         response.body.must_equal({ items: serializer }.to_json)
       end
 
-      describe "if section_id is given" do
+      describe "given a resume id" do
 
         let(:item3) { FactoryGirl.create(:item) }
 
         before do
-          @section = FactoryGirl.create(:section, item_ids: [item1.id, item3.id])
+          @resume = FactoryGirl.create(:resume, item_ids: [item1.id, item3.id])
         end
 
-        it "returns only the items for the given section" do
-          get :index, section_id: @section.id
+        it "returns only the items for the given resume" do
+          get :index, resume_id: @resume.id
           json = JSON.parse(response.body)
           json['items'].size.must_equal 2
-          json['items'][0]['id'].must_equal item1.id
-          json['items'][1]['id'].must_equal item3.id
+          ids = json['items'].map{ |i| i['id'] }
+          ids.wont_include item2.id
+          ids.must_include item1.id
+          ids.must_include item3.id
         end
+      end
 
-        describe "section_id is invalid" do
+      describe "given an invalid resume id" do
 
-          it "responds with 404 Not Found" do
-            get :index, section_id: 'wrong'
-            response.status.must_equal 404
-          end
+        it "responds with 404 Not Found" do
+          get :index, resume_id: 'wrong'
+          response.status.must_equal 404
         end
       end
     end
@@ -179,6 +181,16 @@ module Rez
             response.body.must_equal(ItemSerializer.new(item.reload).to_json)
           end
 
+          describe "given a resume id" do
+            let(:resume) { FactoryGirl.create(:resume) }
+
+            it "adds the new item to the resume" do
+              put :update, id: item, item: update_attrs, resume_id: resume.id
+              id = JSON.parse(response.body)['item']['id']
+              resume.reload.item_ids.must_include id
+            end
+          end
+
           describe "updating the Item's Bullets" do
 
             let(:bullet1) { FactoryGirl.create(:bullet) }
@@ -205,6 +217,13 @@ module Rez
               update_attrs[:bullet_ids] << bullet1.id
               put :update, id: item, item: update_attrs
               item.reload.point_ids.must_equal [bullet1.id, bullet2.id]
+            end
+
+            it "removes all bullets if bullet_ids key is nil or empty" do
+              item.points << bullet1 << bullet2
+              update_attrs[:bullet_ids] = nil
+              put :update, id: item, item: update_attrs
+              item.reload.points.must_be_empty
             end
 
             describe 'when the item already has bullet(s)' do
@@ -249,6 +268,13 @@ module Rez
               item.reload.point_ids.must_equal [paragraph1.id, paragraph2.id]
             end
 
+            it "removes all paragraphs if paragraph_ids key is nil or empty" do
+              item.points << paragraph1 << paragraph2
+              update_attrs[:paragraph_ids] = nil
+              put :update, id: item, item: update_attrs
+              item.reload.points.must_be_empty
+            end
+
             describe 'when the item already has paragraph(s)' do
 
               before do
@@ -269,6 +295,20 @@ module Rez
           it "responds with 404 Not Found" do
             put :update, id: 'nope', item: update_attrs
             response.status.must_equal 404
+          end
+        end
+
+        describe "given invalid attibutes" do
+          before do update_attrs[:name] = '' end
+
+          it "responds with 400 Bad Request" do
+            put :update, id: item, item: update_attrs
+            response.status.must_equal 422
+          end
+
+          it "returns a hash with the error message" do
+            put :update, id: item, item: update_attrs
+            response.body.must_equal({name: ["can't be blank"]}.to_json)
           end
         end
       end
@@ -301,7 +341,7 @@ module Rez
             assert_difference('Item.count', -1) do
               delete :destroy, id: @item
             end
-          end 
+          end
 
           it "responds with 204 No Content" do
             delete :destroy, id: @item
