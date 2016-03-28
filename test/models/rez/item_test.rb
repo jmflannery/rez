@@ -38,16 +38,15 @@ module Rez
       it 'can have subitems of subitems' do
         subject.subitems << subitem1
         subitem1.subitems << subitem2
-        subitem1.subitems.each
         subject.subitem_ids.must_include subitem1.id
         subitem1.subitem_ids.must_include subitem2.id
+        subject.subitem_ids.wont_include subitem2.id
+        subitem2.subitem_ids.wont_include subitem1.id
       end
 
       it 'can be both an item and a subitem' do
         subitem1.subitems << subitem2
         subitem2.subitems << subitem1
-        subitem1.subitems.each
-        subitem2.subitems.each
         subitem1.subitem_ids.must_include subitem2.id
         subitem2.subitem_ids.must_include subitem1.id
       end
