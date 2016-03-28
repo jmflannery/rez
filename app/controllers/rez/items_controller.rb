@@ -2,11 +2,11 @@ module Rez
   class ItemsController < ApplicationController
 
     before_action :toke, only: [:create, :update, :destroy]
-    before_action :set_resume, only: [:create, :index, :update]
+    before_action :set_parent, only: [:create, :index, :update]
     before_action :set_item, only: [:show, :update, :destroy]
     before_action :set_items, only: [:index]
     before_action :update_points, only: [:update]
-    after_action :update_resume, only: [:create, :update]
+    after_action :update_parent, only: [:create, :update]
 
     def create
       params[:item].delete(:bullet_ids) if params[:item].has_key?(:bullet_ids)
@@ -42,11 +42,14 @@ module Rez
 
     private
 
-    def set_resume
-      if params[:resume_id]
-        @resume = Resume.find_by(id: params[:resume_id])
-        head :not_found unless @resume
+    def set_parent
+      return unless params[:parent_id] || params[:resume_id]
+      @parent = if params[:parent_id]
+        Item.find_by(id: params[:parent_id])
+      elsif params[:resume_id]
+        Resume.find_by(id: params[:resume_id])
       end
+      head :not_found unless @parent
     end
 
     def set_item
@@ -55,7 +58,11 @@ module Rez
     end
 
     def set_items
-      @items = defined?(@resume) ? @resume.items : Item.all
+      @items = if defined? @parent
+        params[:parent_id] ? @parent.subitems : @parent.items
+      else
+        Item.all
+      end
     end
 
     def update_points
@@ -65,9 +72,13 @@ module Rez
       params[:item].delete(:paragraph_ids) if params[:item].has_key?(:paragraph_ids)
     end
 
-    def update_resume
-      return unless defined?(@item) && @item.persisted? && defined?(@resume)
-      @resume.items << @item
+    def update_parent
+      return unless defined?(@item) && @item.persisted? && defined?(@parent)
+      if params[:parent_id]
+        @parent.subitems << @item
+      elsif params[:resume_id]
+        @parent.items << @item
+      end
     end
 
     def point_params
