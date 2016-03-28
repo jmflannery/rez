@@ -39,7 +39,7 @@ module Rez
 
           let(:params) {{ name: '' }}
 
-          it "responds with 400 Bad Request" do
+          it "responds with 422 Bad Request" do
             post :create, resume: params
             response.status.must_equal 422
           end
@@ -91,7 +91,7 @@ module Rez
 
       describe "given an invalid Resume id" do
 
-        it "responds with 400 Bad Request" do
+        it "responds with 404 Bad Request" do
           get :show, id: 'wrong'
           response.status.must_equal 404
         end
