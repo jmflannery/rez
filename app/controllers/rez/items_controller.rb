@@ -5,6 +5,7 @@ module Rez
     before_action :set_parent, only: [:create, :index, :update]
     before_action :set_item, only: [:show, :update, :destroy]
     before_action :set_items, only: [:index]
+    before_action :update_items, only: [:update]
     before_action :update_points, only: [:update]
     after_action :update_parent, only: [:create, :update]
 
@@ -63,6 +64,15 @@ module Rez
       else
         Item.all
       end
+    end
+
+    def update_items
+      return unless params[:item].has_key?(:subitem_ids)
+      items = (params[:item].fetch(:subitem_ids, []) || []).uniq.map do |item_id|
+        Item.find_by(id: item_id)
+      end.compact
+      @item.subitems = items
+      params[:item].delete(:subitem_ids)
     end
 
     def update_points

@@ -240,6 +240,49 @@ module Rez
             end
           end
 
+          describe "updating the Item's Subitems" do
+
+            let(:item1) { FactoryGirl.create(:item) }
+            let(:item2) { FactoryGirl.create(:item) }
+            let(:update_attrs) {{
+              subitem_ids: [item1.id, item2.id],
+              name: 'New name',
+              title: 'New title',
+              heading: 'New heading'
+            }}
+
+            it "updates the Item's subitem_ids" do
+              put :update, id: item, item: update_attrs
+              item.reload.subitem_ids.must_equal [item1.id, item2.id]
+            end
+
+            it "does not update invalid item ids" do
+              update_attrs[:subitem_ids] << 1234
+              put :update, id: item, item: update_attrs
+              item.reload.subitem_ids.wont_include 1234
+            end
+
+            it 'does not insert duplicate items' do
+              update_attrs[:subitem_ids] << item1.id
+              put :update, id: item, item: update_attrs
+              item.reload.subitem_ids.must_equal [item1.id, item2.id]
+            end
+
+            it 'removes subitems from the item not given in subitem_ids' do
+              item.subitems << item1
+              update_attrs[:subitem_ids].delete_at(0)
+              put :update, id: item, item: update_attrs
+              item.reload.subitem_ids.wont_include item1.id
+            end
+
+            it "removes all items if item_ids key is nil or empty" do
+              item.subitems << item1 << item2
+              update_attrs[:subitem_ids] = nil
+              put :update, id: item, item: update_attrs
+              item.reload.subitems.must_be_empty
+            end
+          end
+
           describe "updating the Item's Bullets" do
 
             let(:bullet1) { FactoryGirl.create(:bullet) }
@@ -268,24 +311,18 @@ module Rez
               item.reload.point_ids.must_equal [bullet1.id, bullet2.id]
             end
 
+            it 'removes bullets from the item not given in bullet_ids' do
+              item.points << bullet1
+              update_attrs[:bullet_ids].delete_at(0)
+              put :update, id: item, item: update_attrs
+              item.reload.point_ids.wont_include bullet1.id
+            end
+
             it "removes all bullets if bullet_ids key is nil or empty" do
               item.points << bullet1 << bullet2
               update_attrs[:bullet_ids] = nil
               put :update, id: item, item: update_attrs
               item.reload.points.must_be_empty
-            end
-
-            describe 'when the item already has bullet(s)' do
-
-              before do
-                item.points << bullet1
-                update_attrs[:bullet_ids].delete_at(0)
-              end
-
-              it 'bullets not given in bullet_ids are removed from the item' do
-                put :update, id: item, item: update_attrs
-                item.reload.point_ids.wont_include bullet1.id
-              end
             end
           end
 
@@ -317,24 +354,18 @@ module Rez
               item.reload.point_ids.must_equal [paragraph1.id, paragraph2.id]
             end
 
+            it 'removes paragraphs from the item not given in paragraph_ids' do
+              item.points << paragraph1
+              update_attrs[:paragraph_ids].delete_at(0)
+              put :update, id: item, item: update_attrs
+              item.reload.point_ids.wont_include paragraph1.id
+            end
+
             it "removes all paragraphs if paragraph_ids key is nil or empty" do
               item.points << paragraph1 << paragraph2
               update_attrs[:paragraph_ids] = nil
               put :update, id: item, item: update_attrs
               item.reload.points.must_be_empty
-            end
-
-            describe 'when the item already has paragraph(s)' do
-
-              before do
-                item.points << paragraph1
-                update_attrs[:paragraph_ids].delete_at(0)
-              end
-
-              it 'paragraphs not given in paragraph_ids are removed from the item' do
-                put :update, id: item, item: update_attrs
-                item.reload.point_ids.wont_include paragraph1.id
-              end
             end
           end
         end
