@@ -43,9 +43,9 @@ module Rez
     private
 
     def set_parent
-      return unless params[:parent_id] || params[:resume_id]
-      @parent = if params[:parent_id]
-        Item.find_by(id: params[:parent_id])
+      return unless params[:item_id] || params[:resume_id]
+      @parent = if params[:item_id]
+        Item.find_by(id: params[:item_id])
       elsif params[:resume_id]
         Resume.find_by(id: params[:resume_id])
       end
@@ -59,7 +59,7 @@ module Rez
 
     def set_items
       @items = if defined? @parent
-        params[:parent_id] ? @parent.subitems : @parent.items
+        params[:item_id] ? @parent.subitems : @parent.items
       else
         Item.all
       end
@@ -74,7 +74,7 @@ module Rez
 
     def update_parent
       return unless defined?(@item) && @item.persisted? && defined?(@parent)
-      if params[:parent_id]
+      if params[:item_id]
         @parent.subitems << @item
       elsif params[:resume_id]
         @parent.items << @item

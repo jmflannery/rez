@@ -55,7 +55,7 @@ module Rez
           let(:parent) { FactoryGirl.create(:item) }
 
           it 'adds the new item to the parent Item' do
-            post :create, item: item_attrs, parent_id: parent.id
+            post :create, item: item_attrs, item_id: parent.id
             id = JSON.parse(response.body)['item']['id']
             parent.reload.subitem_ids.must_include id
           end
@@ -145,7 +145,7 @@ module Rez
         end
 
         it "returns only the items for the given parent Item" do
-          get :index, parent_id: @parent.id
+          get :index, item_id: @parent.id
           json = JSON.parse(response.body)
           json['items'].size.must_equal 2
           ids = json['items'].map{ |i| i['id'] }
@@ -158,7 +158,7 @@ module Rez
       describe "given an invalid parent Item id" do
 
         it "responds with 404 Not Found" do
-          get :index, parent_id: 'wrong'
+          get :index, item_id: 'wrong'
           response.status.must_equal 404
         end
       end
@@ -234,7 +234,7 @@ module Rez
             let(:parent) { FactoryGirl.create(:item) }
 
             it 'adds the new item to the parent Item' do
-              put :update, id: item, item: update_attrs, parent_id: parent.id
+              put :update, id: item, item: update_attrs, item_id: parent.id
               id = JSON.parse(response.body)['item']['id']
               parent.reload.subitem_ids.must_include id
             end
